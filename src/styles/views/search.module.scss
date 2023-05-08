@@ -10,9 +10,15 @@
     align-items: center;
 
     .welcome {
-      font-size: 36px;
-      font-weight: 600;
-      color: #01005F;
+      // font-size: 36px;
+      // font-weight: 600;
+      // color: #01005F;
+      font-size: 32px;
+      font-weight: bold;
+      color: #6F3BF5;
+      text-align: center;
+      margin-bottom: 32px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
     }
   }
 }
@@ -58,4 +64,11 @@
   content: "";
   display: block;
   clear: both;
+}
+
+.searchButton:hover {
+  background-color: #5a2ce8; /* Slightly darker shade when hovering */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25); /* Box shadow effect on hover */
+  cursor: pointer; /* Change the cursor to a pointer on hover */
+  transition: background-color 0.2s, box-shadow 0.2s; /* Smooth transition for hover effect */
 }
