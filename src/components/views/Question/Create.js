@@ -3,6 +3,7 @@ import { Button, Card, Form, Input } from "antd";
 import styles from "styles/views/question.create.module.scss";
 import { newQuestion } from "helpers/api/question";
 import useAuth from "helpers/api/auth";
+import { Select } from "antd";
 
 const Create = () => {
     useAuth();
@@ -39,6 +40,20 @@ const Create = () => {
                                 size={"large"}
                                 placeholder={"Description (optional)"}
                             />
+                        </Form.Item>
+
+                        <Form.Item name="tag" rules={[{ required: true, message: "Please select a tag for your question." }]}>
+                            <Select
+                                className={styles.selectTag}
+                                size="large"
+                                placeholder="Select a tag"
+                                style={{ width: '100%' }}
+                            >
+                                <Select.Option value="study">Study</Select.Option>
+                                <Select.Option value="sports">Sports</Select.Option>
+                                <Select.Option value="life">Life</Select.Option>
+                                <Select.Option value="other">Other</Select.Option>
+                            </Select>
                         </Form.Item>
 
                         <Form.Item>
