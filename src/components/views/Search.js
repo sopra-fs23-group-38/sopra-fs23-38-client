@@ -5,14 +5,28 @@ import { useHistory } from "react-router-dom";
 import { search } from "helpers/api/search";
 import styles from "styles/views/search.module.scss";
 
+import { Select } from 'antd';
+const { Option } = Select;
+
 const Search = () => {
     const [items, setItems] = useState([]);
+    const [searchType, setSearchType] = useState('All');
     const history = useHistory();
 
+    // const onFinish = (values) => {
+    //     search(values).then((response) => {
+    //         setItems(response);
+    //     });
+    // };
+
     const onFinish = (values) => {
-        search(values).then((response) => {
+        search({ ...values, searchType }).then((response) => {
             setItems(response);
         });
+    };
+
+    const handleSearchTypeChange = (value) => {
+        setSearchType(value);
     };
 
     return (
@@ -22,26 +36,48 @@ const Search = () => {
 
                 <Form onFinish={onFinish} className={styles.form}>
                     <Row>
-                        <Col span={2}>
-                            <Button
+                        {/* //<Col span={2}> */}
+                            {/* <Button
                                 style={{ marginRight: "16px", marginTop: "38px" }}
                                 shape="circle"
                                 icon={<SearchOutlined />}
                                 type={"text"}
                                 size={"large"}
-                            />
-                        </Col>
+                            /> */}
+                        {/* /</Col> */}
 
-                        <Col span={22}>
+                        <Col span={24}>
                             <Form.Item
                                 name="keyword"
                                 rules={[{ required: true, message: "please input your keywords." }]}
                             >
-                                <Input
-                                    style={{ width: "756px", marginTop: "32px", height: "48px" }}
-                                    size={"large"}
-                                    placeholder={"Type the keywords here"}
-                                />
+
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Select
+                                        defaultValue="All"
+                                        style={{ marginRight: "8px", width: "120px" }}
+                                        size={"large"}
+                                        onChange={handleSearchTypeChange}
+                                    >
+                                        <Option value="All">All</Option>
+                                        <Option value="User">User</Option>
+                                        <Option value="Question">Question</Option>
+                                        <Option value="Answer">Answer</Option>
+                                    </Select>
+                                    <Input
+                                        style={{ width: "756px", height: "48px" }}
+                                        size={"large"}
+                                        placeholder={"Type the keywords here"}
+                                        suffix={
+                                            <Button
+                                              icon={<SearchOutlined />}
+                                              type={"text"}
+                                              size={"large"}
+                                              htmlType="submit"
+                                            />
+                                        }
+                                    />
+                                </div>
                             </Form.Item>
                         </Col>
                     </Row>
@@ -53,10 +89,14 @@ const Search = () => {
                             width: "128px",
                             height: "48px",
                             backgroundColor: "#6F3BF5",
+                            color: "#FFFFFF", // Add this line to change the button text color
+                            fontWeight: "bold", // Add this line to make the button text bold
+                            fontFamily: "Roboto, sans-serif",
                         }}
                         type={"primary"}
                         shape={"round"}
                         size={"large"}
+                        className={styles.searchButton} // Add this line to apply a custom CSS class
                     >
                         Search
                     </Button>
