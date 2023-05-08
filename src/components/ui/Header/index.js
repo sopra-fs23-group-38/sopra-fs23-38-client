@@ -1,4 +1,4 @@
-import { Avatar, Button, Col, Dropdown, Row } from "antd";
+import { Avatar, Badge,Button, Col, Dropdown, Row, Popover} from "antd";
 import { useEffect, useState } from "react";
 import {
   AlertTwoTone,
@@ -13,7 +13,15 @@ import { useHistory } from "react-router-dom";
 const Header = () => {
   const history = useHistory();
   const [isLogin, setIsLogin] = useState(false);
-  const [hasNew, setHasNew] = useState(false);
+  const [hasNew, setHasNew] = useState(0);
+
+  const notificationMessage = () => {
+    if (hasNew === 1) {
+      return 'You have 1 new notification.';
+    } else {
+      return `You have ${hasNew} new notifications.`;
+    }
+  };
 
   useEffect(() => {
     const cookie = Cookies.get("token", "");
@@ -57,7 +65,7 @@ const Header = () => {
     cleanHasNew();
     // history.push("/Center");
     window.location.href = "/center";
-    setHasNew(false);
+    setHasNew(0);
   };
   const handleSearch = () => {
     console.log(history);
@@ -69,7 +77,7 @@ const Header = () => {
       key: "1",
       label: (
         <div onClick={clickCenter}>
-          <span>Center</span>
+          <span>User Center</span>
         </div>
       ),
     },
@@ -111,19 +119,54 @@ const Header = () => {
           />
           {isLogin ? (
             <Dropdown
+              overlayClassName={styles.customDropdown}
               menu={{
                 items,
               }}
-              placement="topRight"
+              placement="bottomRight"
               arrow={{
                 pointAtCenter: true,
               }}
+              offset={[50, 0]}
+              // onMouseEnter={() => {
+              //   if (hasNew) {
+              //     cleanHasNew();
+              //     setHasNew(false);
+              //   }
+              // }}
             >
-              {hasNew ? (
+              {/* {hasNew ? (
                 <Avatar icon={<AlertTwoTone />} />
               ) : (
                 <Avatar icon={<UserOutlined />} />
-              )}
+              )} */}
+
+              <Popover
+                content={
+                  <div
+                    onMouseEnter={() => {
+                      if (hasNew) {
+                        cleanHasNew();
+                        setHasNew(0);
+                      }
+                    }}
+                    style={{ fontSize: '18px', fontWeight: 'bold',color: 'red' }}
+                  >
+                    {notificationMessage()} {/* Display the notification message */}
+                  </div>}
+                title={<span style={{ color: 'blue' }}>Notification</span>}
+                trigger="hover"
+                visible={hasNew}
+                placement="bottom"
+                arrow={{
+                  pointAtCenter: true,
+                }}
+                offset={[10,20]}
+              >
+                  <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
+                      <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />
+                  </Badge>
+                </Popover> 
             </Dropdown>
           ) : (
             <Button
