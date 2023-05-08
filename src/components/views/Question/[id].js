@@ -12,7 +12,7 @@ import {
   Pagination,
   Row,
 } from "antd";
-import { CommentOutlined, LikeTwoTone } from "@ant-design/icons";
+import { CommentOutlined, LikeTwoTone, TranslationOutlined} from "@ant-design/icons";
 import { getSomeAnswerNew, evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
 import useAuth from "helpers/api/auth";
@@ -20,7 +20,7 @@ import styles from "styles/views/question.create.module.scss";
 import Cookies from "js-cookie";
 
 const requests = axios.create({
-  baseURL: "http://localhost:8080", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
+  baseURL: "https://sopra-fs23-group-38-server.oa.r.appspot.com/",
   withCredentials: true,
   // baseURL: process.env.API_HOST // Change to your desired host and port
 });
@@ -228,6 +228,7 @@ const QuestionDetail = ({}) => {
                   disabled={isTrans}
                   onClick={translateTitle}
                   type="primary"
+                  icon={<TranslationOutlined />}
                 >
                   {isTrans ? "Translation Finish" : "Translate Question"}
                 </Button>
