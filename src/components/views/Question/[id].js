@@ -3,16 +3,8 @@ import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 import moment from "moment/moment";
 import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Image,
-  message,
-  Pagination,
-  Row,
-} from "antd";
-import { CommentOutlined, LikeTwoTone, TranslationOutlined} from "@ant-design/icons";
+  Button, Card, Col, Divider, Image, message, Pagination, Row, Space, Dropdown, Menu} from "antd";
+import { CommentOutlined, LikeTwoTone, TranslationOutlined, FastBackwardOutlined, SortAscendingOutlined} from "@ant-design/icons";
 import { getSomeAnswerNew, evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
 import useAuth from "helpers/api/auth";
@@ -20,7 +12,7 @@ import styles from "styles/views/question.create.module.scss";
 import Cookies from "js-cookie";
 
 const requests = axios.create({
-  baseURL: "https://sopra-fs23-group-38-server.oa.r.appspot.com/",
+  baseURL:  "http://localhost:8080", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
   withCredentials: true,
   // baseURL: process.env.API_HOST // Change to your desired host and port
 });
@@ -149,6 +141,13 @@ const QuestionDetail = ({}) => {
     setSortByVoteCount(!sortByVoteCount);
   };
 
+  const menu = (
+      <Menu onClick={handleSortByVoteCount}>
+        <Menu.Item key="1">chronological order</Menu.Item>
+        <Menu.Item key="2">vote count</Menu.Item>
+      </Menu>
+  );
+
   return (
     <div className={styles.container}>
       <div className={styles.main}>
@@ -224,13 +223,13 @@ const QuestionDetail = ({}) => {
 
               <Col>
                 <Button
-                  style={{ backgroundColor: isTrans ? "#6F3BF5" : "#3B7AF5" }}
+                  style={{ backgroundColor: isTrans ? "#3b98f5" : "#3B7AF5" }}
                   disabled={isTrans}
                   onClick={translateTitle}
                   type="primary"
                   icon={<TranslationOutlined />}
                 >
-                  {isTrans ? "Translation Finish" : "Translate Question"}
+                  {/*{isTrans ? "Translation Finish" : "Translate Question"}*/}
                 </Button>
               </Col>
 
@@ -239,7 +238,7 @@ const QuestionDetail = ({}) => {
                   style={{ marginLeft: "8px" }}
                   onClick={() => router.goBack()}
                 >
-                  Back
+                  <FastBackwardOutlined />
                 </Button>
               </Col>
             </Row>
@@ -272,15 +271,23 @@ const QuestionDetail = ({}) => {
             </Row>
 
             <p style={{ fontWeight: 600, fontSize: "16px" }}></p>
-            {/* {answers
-              //   .sort((a, b) => b.answer.vote_count - a.answer.vote_count)
+            {/* {answers*/}
+            {/*  //   .sort((a, b) => b.answer.vote_count - a.answer.vote_count)*/}
 
-              .map((answer) => { */}
-            <button onClick={handleSortByVoteCount}>
-              {sortByVoteCount
-                ? "Sort by chronological order"
-                : "Sort by vote count"}
-            </button>
+            {/*  .map((answer) => { */}
+            {/*<button onClick={handleSortByVoteCount}>*/}
+            {/*  {sortByVoteCount*/}
+            {/*    ? "Sort by chronological order"*/}
+            {/*    : "Sort by vote count"}*/}
+            {/*</button>*/}
+            <Dropdown overlay={menu}>
+              <Button
+                style={{ backgroundColor: "#2ca1c4", marginTop: "16px" }}
+                icon = {<SortAscendingOutlined />}
+              >
+                Sort by
+              </Button>
+            </Dropdown>
             <p style={{ fontWeight: 600, fontSize: "16px" }}>
               {answerCount} Answers
             </p>
