@@ -39,7 +39,33 @@ const Index = Home => {
             }
         });
     }, [page]);
-
+  // Sort by answer count
+  const [sortByAnswerCount, setSortByAnswerCount] = useState(false);
+  useEffect(() => {
+    // fetch answer_count from backend
+    listQuestions({
+      pageIndex: page,
+    }).then((response) => {
+      console.log(response);
+      if (response.success && response.success === "false") {
+        message.error(response.reason);
+      } else {
+        const sortedItems = sortByAnswerCount
+          ? [...response].sort(
+              (a, b) => b.question.answer_count - a.question.answer_count
+            )
+          : [...response].sort(
+              (a, b) =>
+                new Date(b.question.change_time) -
+                new Date(a.question.change_time)
+            );
+        setItems(sortedItems);
+      }
+    });
+  }, [page, sortByAnswerCount]);
+  const handleSortByAnswerCount = () => {
+    setSortByAnswerCount(!sortByAnswerCount);
+  };
     return (
         <div className={styles.container}>
             <main className={styles.main}>
@@ -61,7 +87,14 @@ const Index = Home => {
                 >
                     Create Question
                 </Button>
-
+                <Button
+                  onClick={handleSortByAnswerCount}
+                  type={"primary"}
+                  size={"small"}
+                  style={{ margin: "16px 0" }}
+                >
+                  {sortByAnswerCount ? "Sort by time" : "Sort by answer count"}
+                </Button>
                 <div>
                     {items &&
                         items.map((item) => {
