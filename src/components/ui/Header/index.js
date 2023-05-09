@@ -1,7 +1,6 @@
 import { Avatar, Badge,Button, Col, Dropdown, Row, Popover} from "antd";
 import { useEffect, useState } from "react";
 import {
-  AlertTwoTone,
   SearchOutlined,
   UserOutlined,
 } from "@ant-design/icons";

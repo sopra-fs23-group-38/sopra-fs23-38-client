@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button, message, Pagination } from "antd";
+import { TranslationOutlined} from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import Content from "components/ui/Content";
 import { getTotalPageCount, listQuestions } from "helpers/api/question.js";

@@ -3,7 +3,7 @@ import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 import moment from "moment/moment";
 import {
-  Button, Card, Col, Divider, Image, message, Pagination, Row, Space, Dropdown, Menu} from "antd";
+  Button, Card, Col, Divider, Image, message, Pagination, Row, Dropdown, Menu} from "antd";
 import { CommentOutlined, LikeTwoTone, TranslationOutlined, FastBackwardOutlined, SortAscendingOutlined} from "@ant-design/icons";
 import { getSomeAnswerNew, evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
