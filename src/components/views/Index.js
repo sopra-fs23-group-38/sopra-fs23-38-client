@@ -20,6 +20,63 @@ const Index = Home => {
     };
 
     useEffect(() => {
+        console.log("dsss")
+        if (localStorage.getItem("user")) {
+            setUser(JSON.parse(localStorage.getItem("user")));
+            console.log(user)
+        }
+
+        var newSocket = new SockJS("http://localhost:8080/my-websocket");
+        stompClient = over(newSocket);
+        stompClient.connect({}, function() {
+            stompClient.subscribe("/topic/howManyQuestions/", function(msg) {
+                let body = JSON.parse(msg.body)
+                setTotal(body.howmanypages);
+                console.log(body)
+            })
+            stompClient.subscribe("/topic/listQuestions/"+page.toString(), function(msg) {
+                let body = JSON.parse(msg.body)
+                setItems(body);
+                console.log(body)
+            })
+
+            // eslint-disable-next-line no-use-before-define
+        }, connectError);
+
+
+        const connectError = (err) => {
+            console.log("网络异常")
+            message.error("Web socket Interrupted");
+
+            setTimeout(() => {
+                console.log("Attempting to reconnect...");
+                setSocket(null);
+
+                const newSocket = new SockJS("http://localhost:8080/my-websocket");
+                stompClient = over(newSocket);
+                setSocket(stompClient);
+            }, 3000);
+        };
+        socket && socket.disconnect(() => {
+            console.log('WebSocket disconnected!');
+            connectError();
+        });
+        return () => {
+            socket && socket.disconnect();
+            setSocket(null);
+        };
+    },[page,socket]);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            stompClient.send("/app/getHowManyQuestions/", {});
+            stompClient.send("/app/getAllQuestions/" + page, {});
+        }, 100);
+        return () => clearTimeout(timeout);
+    }, [page, socket]);
+
+
+    useEffect(() => {
         setUser(JSON.parse(localStorage.getItem("user")));
         console.log(user)
         getTotalPageCount().then((response) => {
@@ -41,34 +98,33 @@ const Index = Home => {
             }
         });
     }, [page]);
-  // Sort by answer count
-  const [sortByAnswerCount, setSortByAnswerCount] = useState(false);
-  useEffect(() => {
-    // fetch answer_count from backend
-    listQuestions({
-      pageIndex: page,
-    }).then((response) => {
-      console.log(response);
-      if (response.success && response.success === "false") {
-        message.error(response.reason);
-      } else {
-        const sortedItems = sortByAnswerCount
-          ? [...response].sort(
-              (a, b) => b.question.answer_count - a.question.answer_count
-            )
-          : [...response].sort(
-              (a, b) =>
-                new Date(b.question.change_time) -
-                new Date(a.question.change_time)
-            );
-        setItems(sortedItems);
-      }
-    });
-  }, [page, sortByAnswerCount]);
-  const handleSortByAnswerCount = () => {
-    setSortByAnswerCount(!sortByAnswerCount);
-  };
-
+    // Sort by answer count
+    const [sortByAnswerCount, setSortByAnswerCount] = useState(false);
+    useEffect(() => {
+        // fetch answer_count from backend
+        listQuestions({
+            pageIndex: page,
+        }).then((response) => {
+            console.log(response);
+            if (response.success && response.success === "false") {
+                message.error(response.reason);
+            } else {
+                const sortedItems = sortByAnswerCount
+                  ? [...response].sort(
+                    (a, b) => b.question.answer_count - a.question.answer_count
+                  )
+                  : [...response].sort(
+                    (a, b) =>
+                      new Date(b.question.change_time) -
+                      new Date(a.question.change_time)
+                  );
+                setItems(sortedItems);
+            }
+        });
+    }, [page, sortByAnswerCount]);
+    const handleSortByAnswerCount = () => {
+        setSortByAnswerCount(!sortByAnswerCount);
+    };
   const menu = (
         <Menu onClick={handleSortByAnswerCount}>
             <Menu.Item key="1">Time</Menu.Item>
