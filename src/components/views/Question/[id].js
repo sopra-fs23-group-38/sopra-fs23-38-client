@@ -10,143 +10,164 @@ import { translate } from "helpers/api/translator";
 import useAuth from "helpers/api/auth";
 import styles from "styles/views/question.create.module.scss";
 import Cookies from "js-cookie";
-
+import SockJS from "sockjs-client";
+import { over } from "stompjs";
 const requests = axios.create({
   baseURL:  "http://localhost:8080", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
   withCredentials: true,
   // baseURL: process.env.API_HOST // Change to your desired host and port
 });
 requests.interceptors.request.use(
-  (config) => {
-    config.headers["content-type"] = "multipart/form-data";
-    config.headers["Access-Control-Allow-Origin"] = "*";
-    config.headers["Access-Control-Allow-Headers"] =
-      "Origin, X-Requested-With, Content-Type, Accept";
-    config.headers["token"] = Cookies.get("token");
-    return config;
-  },
-  (error) => {
-    console.log(error);
-    return Promise.reject(error);
-  }
+    (config) => {
+        config.headers["content-type"] = "multipart/form-data";
+        config.headers["Access-Control-Allow-Origin"] = "*";
+        config.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
+        config.headers['token'] = Cookies.get('token')
+        return config;
+    },
+    (error) => {
+        console.log(error);
+        return Promise.reject(error);
+    }
 );
+var stompClient = null;
 
 // eslint-disable-next-line no-empty-pattern
-const QuestionDetail = ({}) => {
-  useAuth();
-  const { id } = useParams();
-  const router = useHistory();
-  const [isTrans, setIsTrans] = useState(false);
-  const [article, setArticle] = useState(null);
-  const [answers, setAnswers] = useState([]);
-  const [answerCount, setAnswerCount] = useState(null);
-  const [user, setUser] = useState({});
+const QuestionDetail = ({  }) => {
+    useAuth()
+    const { id } = useParams();
+    const router = useHistory();
+    const [isTrans, setIsTrans] = useState(false);
+    const [article, setArticle] = useState(null);
+    const [answers, setAnswers] = useState([]);
+    const [answerCount, setAnswerCount] = useState(null);
+    const [user, setUser] = useState({});
 
-  useEffect(() => {
-    setUser(JSON.parse(localStorage.getItem("user")));
-    // console.log(user)
-    if (id !== undefined && id !== "undefined") {
-      Promise.all([
-        requests.get("/question/getQuestionById", {
-          params: {
-            ID: id,
-          },
-        }),
-        requests.get(`/answer/getAllAnstoOneQ`, {
-          params: {
-            pageIndex: 1,
-            questionID: id,
-          },
-        }),
-      ]).then(([response1, response2]) => {
-        const question = response1.data;
-        const answer = response2.data;
-        setArticle(question);
-        setAnswers(answer);
-        setAnswerCount(question?.answerCount);
-      });
-    }
-    console.log(user);
-  }, []);
+    useEffect(() => {
+        const newSocket = new SockJS("http://localhost:8080/my-websocket");
+        let stompClient;
+        stompClient = over(newSocket);
+        stompClient.connect({}, function() {
+            stompClient.subscribe("/topic/getQuestionById/"+id, function(msg) {
+                let body = JSON.parse(msg.body)
+                setArticle(body);
+                setAnswerCount(body?.answerCount);
+                console.log(body)
+            })
+            stompClient.subscribe("/topic/getAllAnstoOneQ/"+id, function(msg) {
+                let body = JSON.parse(msg.body)
+                setAnswers(body);
+                console.log(body)
+            })
 
-  const handleEvaluate = async (id) => {
-    try {
-      await evaluate({
-        ID: id,
-        UporDownVote: 1,
-      }).then((response) => {
-        if (response.success === "true") {
-          message.info("Thumb up successfully");
-          const newAnswers = answers.map((answer) => {
-            if (answer.answer.id === id) {
-              answer.likeCount += 1;
-            }
-            return answer;
-          });
-          setAnswers([...newAnswers]);
-          window.location.reload();
-        } else {
-          message.error("Thumb up failed");
+            // eslint-disable-next-line no-use-before-define
+        }, connectError);
+        const connectError = (err) => {
+            console.log("网络异常")
+            message.error("Web socket Interrupted");
+            setTimeout(() => {
+                console.log("Attempting to reconnect...");
+                const newSocket = new SockJS("http://localhost:8080/my-websocket");
+                stompClient = over(newSocket);
+            }, 3000);
+        };
+
+        setUser(JSON.parse(localStorage.getItem("user")));
+        // console.log(user)
+        if (id !== undefined && id !== "undefined") {
+            console.log(id)
+            console.log("Fetching data with websocket...");
+            setTimeout(() => {
+                // eslint-disable-next-line no-unused-expressions
+                stompClient.send("/app/getQuestionById", {}, JSON.stringify({ ID: id }));
+                stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: id }));
+            }, 500); // 延迟1秒
         }
-      });
-    } catch (error) {
-      console.error("Translation error:", error);
-    }
-  };
+    }, [id, stompClient]);
 
-  const translateTitle = async () => {
-    try {
-      const response1 = await translate({
-        content: article.question.title,
-      });
-      const response2 = await translate({
-        content: article.question.description,
-      });
 
-      const newArticle = { ...article };
-      newArticle.question.title = response1;
-      newArticle.question.description = response2;
-      setArticle(newArticle);
+    const handleEvaluate = async (id) => {
+        try {
+        await evaluate({
+            ID: id,
+            UporDownVote: 1
+        }).then(response => {
+            if (response.success === "true") {
+                message.info("Thumb up successfully");
+                const newAnswers = answers.map(answer => {
+                    if (answer.answer.id === id) {
+                        answer.likeCount += 1;
+                    }
+                    return answer;
+                });
+                setAnswers([...newAnswers]);
+                window.location.reload();
+            } else {
+                message.error("Thumb up failed");
+            }
+        });
+        } catch (error) {
+            console.error("Translation error:", error);
+        }
+    };
 
-      setIsTrans(true);
-    } catch (error) {
-      console.error("Translation error:", error);
-    }
-  };
 
-  const handleChange = (values) => {
-    getSomeAnswerNew({
-      pageIndex: values,
-      questionID: id,
-    }).then((response) => {
-      if (response) {
-        setAnswers(response);
-      }
-    });
-  };
-  const [sortByVoteCount, setSortByVoteCount] = useState(false);
-  const [sortedAnswers, setSortedAnswers] = useState([]);
-  useEffect(() => {
-    const sorted = sortByVoteCount
-      ? [...answers].sort((a, b) => b.answer.vote_count - a.answer.vote_count)
-      : [...answers].sort(
-          (a, b) =>
-            new Date(b.answer.change_time) - new Date(a.answer.change_time)
-        );
 
-    setSortedAnswers(sorted);
-  }, [sortByVoteCount, answers]);
+    const translateTitle = async () => {
+        try {
+            const response1 = await translate({
+                content: article.question.title
+            });
+            const response2 = await translate({
+                content: article.question.description
+            });
 
-  const handleSortByVoteCount = () => {
-    setSortByVoteCount(!sortByVoteCount);
-  };
+            const newArticle = { ...article };
+            newArticle.question.title = response1;
+            newArticle.question.description = response2;
+            setArticle(newArticle);
 
-  const menu = (
+            setIsTrans(true);
+        } catch (error) {
+            console.error("Translation error:", error);
+        }
+    };
+
+
+    const handleChange = values => {
+        getSomeAnswerNew({
+            pageIndex: values,
+            questionID: id
+        }).then(response => {
+            if (response) {
+                setAnswers(response);
+            }
+        });
+    };
+
+    const [sortByVoteCount, setSortByVoteCount] = useState(false);
+    const [sortedAnswers, setSortedAnswers] = useState([]);
+    useEffect(() => {
+        const sorted = sortByVoteCount
+          ? [...answers].sort((a, b) => b.answer.vote_count - a.answer.vote_count)
+          : [...answers].sort(
+            (a, b) =>
+              new Date(b.answer.change_time) - new Date(a.answer.change_time)
+          );
+
+        setSortedAnswers(sorted);
+    }, [sortByVoteCount, answers]);
+
+    const handleSortByVoteCount = () => {
+        setSortByVoteCount(!sortByVoteCount);
+    };
+
+    const menu = (
       <Menu onClick={handleSortByVoteCount}>
-        <Menu.Item key="1">chronological order</Menu.Item>
-        <Menu.Item key="2">vote count</Menu.Item>
+          <Menu.Item key="1">chronological order</Menu.Item>
+          <Menu.Item key="2">vote count</Menu.Item>
       </Menu>
-  );
+    );
 
   return (
     <div className={styles.container}>
