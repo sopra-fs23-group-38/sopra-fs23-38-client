@@ -10,7 +10,7 @@ const { Option } = Select;
 
 const Search = () => {
     const [items, setItems] = useState([]);
-    const [searchType, setSearchType] = useState('All');
+   // const [searchType, setSearchType] = useState('All');
     const history = useHistory();
 
     const onFinish = (values) => {
