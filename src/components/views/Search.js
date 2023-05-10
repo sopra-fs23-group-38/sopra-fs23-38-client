@@ -13,14 +13,8 @@ const Search = () => {
     const [searchType, setSearchType] = useState('All');
     const history = useHistory();
 
-    // const onFinish = (values) => {
-    //     search(values).then((response) => {
-    //         setItems(response);
-    //     });
-    // };
-
     const onFinish = (values) => {
-        search({ ...values, searchType }).then((response) => {
+        search(values).then((response) => {
             setItems(response);
         });
     };
@@ -36,17 +30,17 @@ const Search = () => {
 
                 <Form onFinish={onFinish} className={styles.form}>
                     <Row>
-                        {/* //<Col span={2}> */}
-                            {/* <Button
+                        <Col span={2}>
+                            <Button
                                 style={{ marginRight: "16px", marginTop: "38px" }}
                                 shape="circle"
                                 icon={<SearchOutlined />}
                                 type={"text"}
                                 size={"large"}
-                            /> */}
-                        {/* /</Col> */}
+                            />
+                        </Col>
 
-                        <Col span={24}>
+                        <Col span={22}>
                             <Form.Item
                                 name="keyword"
                                 rules={[{ required: true, message: "please input your keywords." }]}
