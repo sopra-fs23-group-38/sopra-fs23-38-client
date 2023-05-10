@@ -3,7 +3,7 @@ import styles from 'styles/views/center.module.scss';
 import {useEffect, useState} from "react";
 import {deleteQuestion, getQuestionsAskedBy, updateQuestion} from "helpers/api/question";
 import {deleteAnswer, getAnswersWriteBy, updateAnswer} from "helpers/api/answer";
-import {deleteComment, updateComment} from "helpers/api/comment";
+import { deleteComment, getCommentsBy, updateComment } from "helpers/api/comment";
 import {listNotifications} from "helpers/api//notification";
 import {useHistory} from "react-router-dom";
 
@@ -12,7 +12,6 @@ const Center = () => {
     const [answers, setAnswers] = useState([])
     const [comments, setComments] = useState([])
     const [notifications, setNotifications] = useState([])
-    // const router = useRouter()
     const history = useHistory();
 
     useEffect(() => {
@@ -25,9 +24,9 @@ const Center = () => {
             setAnswers(response)
         })
 
-        // getCommentsBy({ commentator: user.id }).then(response => {
-        //     setComments(response)
-        // })
+        getCommentsBy({ who_comments: user.id }).then(response => {
+            setComments(response)
+        })
 
         const timer = setInterval(() => {
             const user = JSON.parse(localStorage.getItem("user"))
