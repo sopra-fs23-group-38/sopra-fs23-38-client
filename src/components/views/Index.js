@@ -5,14 +5,16 @@ import { useHistory } from "react-router-dom";
 import Content from "components/ui/Content";
 import { getTotalPageCount, listQuestions } from "helpers/api/question.js";
 import styles from "styles/views/home.module.scss";
-
+import SockJS from "sockjs-client";
+import { over } from "stompjs";
+var stompClient = null;
 const Index = Home => {
     const history = useHistory();
     const [items, setItems] = useState([]);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [user, setUser] = useState({});
-
+    const [socket, setSocket] = useState(null);
     const handleClick = () => {
         history.push("/question/create");
     };
