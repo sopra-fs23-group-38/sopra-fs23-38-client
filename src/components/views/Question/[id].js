@@ -211,17 +211,19 @@ const QuestionDetail = ({  }) => {
                               {/*{isTrans ? "Translation Finish" : "Translate Question"}*/}
                             </Button>
                           </Col>
-
                         <Col>
-                            <Button style={{ marginLeft: '8px' }} onClick={() => router.goBack()}>Back</Button>
+                            <Button
+                                style={{ marginLeft: "8px" }}
+                                onClick={() => router.goBack()}
+                            >
+                                <FastBackwardOutlined />
+                            </Button>
                         </Col>
                     </Row>
                     <Row>
                         <Col span={18}>
                             <span className={styles.title}>{article.question.title}</span>
                         </Col>
-
-
                         <Col span={6}>
                             <Button onClick={() => router.push(`/question/${id}/answer`)} style={{ backgroundColor: '#6F3BF5', marginTop: '16px' }} type={"primary"}>Answer this Question</Button>
 
