@@ -61,7 +61,7 @@ const Answer = ({ question }) => {
             setArticle(response)
         })
     }, [])
-
+    console.log(article)
     const onFinish = (values) => {
         values['which_question'] = id
         // eslint-disable-next-line no-unused-vars
@@ -88,8 +88,9 @@ const Answer = ({ question }) => {
                     style={{ width: 765 }}
                     cover={<img style={{ height: '256px', objectFit: 'cover', objectPosition: 'center' }} alt="example" src="https://cdn.pixabay.com/photo/2020/04/19/08/17/watercolor-5062356_960_720.jpg" />}
                 >
+
                     <p className={styles.title} style={{ marginTop: '0px' }}>{article.question.title}</p>
-                    <p className={styles.description} style={{ marginTop: '0px' }}>{ article.question.detail }</p>
+                    <p className={styles.description} style={{ marginTop: '0px' }}>{ article.question.description }</p>
 
                     <Form onFinish={onFinish}>
                         <Form.Item name={'content'} style={{ marginTop: '24px' }} rules={[{ required: true, message: "please input your answer." }]}>
