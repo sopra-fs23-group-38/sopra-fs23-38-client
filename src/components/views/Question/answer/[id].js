@@ -5,10 +5,23 @@ import {getTopComments, insertComment} from "helpers/api/comment";
 import axios from "axios";
 import useAuth from "helpers/api/auth";
 import { useHistory, useParams } from "react-router-dom";
+import Cookies from "js-cookie";
 const requests = axios.create({
   baseURL: process.env.API_HOST, // Change to your desired host and port
 });
-
+requests.interceptors.request.use(
+  (config) => {
+      config.headers["content-type"] = "multipart/form-data";
+      config.headers["Access-Control-Allow-Origin"] = "*";
+      config.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
+      config.headers['token'] = Cookies.get('token')
+      return config;
+  },
+  (error) => {
+      console.log(error);
+      return Promise.reject(error);
+  }
+);
 
 const AnswerComments = (  ) => {
     useAuth();
@@ -29,12 +42,11 @@ const AnswerComments = (  ) => {
                             ID: id,
                         },
                     }),
-                    // requests.get("/comment/getTopComments", {
-                    //     params: {
-                    //         to_comment: id,
-                    //         to_comment_type: 0,
-                    //     },
-                    // }),
+                    requests.get("/comment/getAllComments", {
+                        params: {
+                            ID: id,
+                        },
+                    }),
                 ]);
 
                 setAnswer(response1.data);
@@ -48,17 +60,16 @@ const AnswerComments = (  ) => {
         fetchData();
     }, [id]);
 
-    const handleReply = (username) => {
+    const handleReply = (id,username) => {
         form.setFieldsValue({
-            content: `Reply to ${username}: `
+            content: `About answerid:${id}, Reply to ${username}: `
         });
     };
 
     const handleClick = (values) => {
 
         insertComment({
-            to_comment: id,
-            to_comment_type: 0,
+            ID: id,
             content: values.content
         }).then((response) => {
             if (response.success === 'true') {
@@ -67,8 +78,7 @@ const AnswerComments = (  ) => {
                     content: ''
                 })
                 getTopComments({
-                    to_comment: id,
-                    to_comment_type: 0
+                    ID: id,
                 }).then(response => {
                     if (response.success === 'true') {
                         setComments(response.comments)
@@ -111,6 +121,7 @@ const AnswerComments = (  ) => {
                         <Divider/>
 
                         { comments.map((comment) => {
+                            console.log(comment)
                             return <div key={comment.comment.id}>
                                 <Row>
                                     <Col span={3}>
@@ -123,11 +134,14 @@ const AnswerComments = (  ) => {
                                     </Col>
 
                                     <Col>
-                                        <Button onClick={() => handleReply(comment.commentator.nickname)} style={{ backgroundColor: '#6F3BF5' }} type={"primary"}>Reply</Button>
+                                        <Button onClick={() => handleReply(comment.comment.id,comment.commentator.username)} style={{ backgroundColor: '#6F3BF5' }} type={"primary"}>Reply</Button>
                                     </Col>
                                 </Row>
 
                                 <Divider/>
+
+
+
                             </div>
                         }) }
 
