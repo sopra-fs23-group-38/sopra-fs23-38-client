@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Card, Divider, Form, Image, Input, message } from "antd";
+import { Button, Card, Divider, Form, Input, message } from "antd";
 import { useLocation } from "react-router-dom";
 import SockJS from 'sockjs-client';
 import styles from "styles/views/chat.module.scss";

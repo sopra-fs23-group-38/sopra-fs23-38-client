@@ -12,7 +12,7 @@ import Cookies from "js-cookie";
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
 const requests = axios.create({
-    baseURL: "http://localhost:8080",//"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
+    baseURL: "https://sopra-fs23-group-38-server.oa.r.appspot.com/",
     withCredentials: true,
     // baseURL: process.env.API_HOST // Change to your desired host and port
 });
