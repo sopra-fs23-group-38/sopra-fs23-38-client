@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Button, message, Pagination } from "antd";
-//import { TranslationOutlined} from "@ant-design/icons";
+import {Button, Menu, message, Pagination, Dropdown} from "antd";
+import { SortAscendingOutlined} from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import Content from "components/ui/Content";
 import { getTotalPageCount, listQuestions } from "helpers/api/question.js";
@@ -66,6 +66,13 @@ const Index = Home => {
   const handleSortByAnswerCount = () => {
     setSortByAnswerCount(!sortByAnswerCount);
   };
+
+  const menu = (
+        <Menu onClick={handleSortByAnswerCount}>
+            <Menu.Item key="1">Time</Menu.Item>
+            <Menu.Item key="2">Answer count</Menu.Item>
+        </Menu>
+    );
     return (
         <div className={styles.container}>
             <main className={styles.main}>
@@ -87,14 +94,17 @@ const Index = Home => {
                 >
                     Create Question
                 </Button>
+                <Dropdown overlay={menu}>
                 <Button
                   onClick={handleSortByAnswerCount}
                   type={"primary"}
                   size={"small"}
                   style={{ margin: "16px 0" }}
                 >
-                  {sortByAnswerCount ? "Sort by time" : "Sort by answer count"}
+                    Sort by
+                    <SortAscendingOutlined style={{ marginLeft: '8px' }} />
                 </Button>
+                </Dropdown>
                 <div>
                     {items &&
                         items.map((item) => {
