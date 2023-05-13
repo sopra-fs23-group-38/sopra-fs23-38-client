@@ -88,103 +88,109 @@ const Header = () => {
   ];
 
   return (
-    <div className={styles.header}>
-      <Row>
-        <Col span={2} offset={2}>
-          <div className={styles.log}>
-            <span className={styles.logo}>Group38</span>
-          </div>
-        </Col>
-        <Col span={14}>
-          <Button
-            onClick={() => handleClick("/")}
-            type={"text"}
-            style={{ color: "#000", fontSize: "16px" }}
-          >
-            Home
-          </Button>
+      <div className={styles.header}>
+        <Row>
+          <Col span={4}>
+            <div className={styles.log}>
+              <span className={styles.logo}>UZH IFI Forum</span>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div style={{ textAlign: "center" }}>
+    <span style={{ fontSize: "20px", fontWeight: "bold", color: "#1890ff" }}>
+      An online Q&A platform for UZH IFI’s study and life!
+    </span>
+            </div>
+          </Col>
+          {/*<Col span={8}>*/}
+          {/*  <Row justify="end">*/}
+          {/*    <Button*/}
+          {/*        style={{ marginRight: "16px" }}*/}
+          {/*        shape="circle"*/}
+          {/*        icon={<SearchOutlined />}*/}
+          {/*        onClick={handleSearch}*/}
+          {/*    />*/}
+          <Col span={8}>
+            <Row justify="end">
+              <Button
+                  style={{
+                    marginRight: "16px",
+                    backgroundColor: "#1890ff",
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: "16px",
+                    padding: "5px 10px"
+                  }}
+                  shape="circle"
+                  icon={<SearchOutlined />}
+                  onClick={handleSearch}
+              />
 
-          {/*<Menu className={styles.menu} mode={"horizontal"} items={getMenu()} onClick={handleClick} />*/}
-        </Col>
-        <Col span={4} offset={2}>
-          <Button
-            style={{ marginRight: "16px" }}
-            shape="circle"
-            icon={<SearchOutlined />}
-            onClick={handleSearch}
-          />
           {isLogin ? (
-            <Dropdown
-              overlayClassName={styles.customDropdown}
-              menu={{
-                items,
-              }}
-              placement="bottomRight"
-              arrow={{
-                pointAtCenter: true,
-              }}
-              offset={[50, 0]}
-              // onMouseEnter={() => {
-              //   if (hasNew) {
-              //     cleanHasNew();
-              //     setHasNew(false);
-              //   }
-              // }}
-            >
-              {/* {hasNew ? (
-                <Avatar icon={<AlertTwoTone />} />
+                  <Dropdown
+                      overlayClassName={styles.customDropdown}
+                      menu={{
+                        items,
+                      }}
+                      placement="topLeft"
+                      arrow={{
+                        pointAtCenter: true,
+                        }}
+                    >
+                    <Popover
+                        content={
+                          <div
+                              onMouseEnter={() => {
+                                if (hasNew) {
+                                  cleanHasNew();
+                                  setHasNew(0);
+                                }
+                              }}
+                              style={{ fontSize: '18px', fontWeight: 'bold',color: 'red' }}
+                          >
+                            {notificationMessage()} {/* Display the notification message */}
+                          </div>}
+                        title={<span style={{ color: 'blue' }}>Notification</span>}
+                        trigger="hover"
+                        visible={hasNew}
+                        placement="bottom"
+                        arrow={{
+                          pointAtCenter: true,
+                        }}
+                        offset={[20,0]}
+                    >
+                      <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
+                        <Avatar
+                            icon={
+                              <img src={`https://bing.ioliu.cn/v1?d=${message.fromUserId}&w=32&h=32`} alt={'User avatar'} />
+                            }
+                            style={{ fontSize: "20px" }}
+                        />
+                      </Badge>
+                    </Popover>
+                  </Dropdown>
               ) : (
-                <Avatar icon={<UserOutlined />} />
-              )} */}
-
-              <Popover
-                content={
-                  <div
-                    onMouseEnter={() => {
-                      if (hasNew) {
-                        cleanHasNew();
-                        setHasNew(0);
-                      }
-                    }}
-                    style={{ fontSize: '18px', fontWeight: 'bold',color: 'red' }}
+                  <Button
+                      style={{
+                        backgroundColor: "#6F3BF5",
+                        color: "white",
+                        fontWeight: "bold",
+                        fontSize: "16px",
+                        padding: "5px 20px"
+                      }}
+                      onClick={() => handleClick("/login")}
+                      type={"primary"}
                   >
-                    {notificationMessage()} {/* Display the notification message */}
-                  </div>}
-                title={<span style={{ color: 'blue' }}>Notification</span>}
-                trigger="hover"
-                visible={hasNew}
-                placement="bottom"
-                arrow={{
-                  pointAtCenter: true,
-                }}
-                offset={[10,20]}
-              >
-                  {/*<Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>*/}
-                  {/*    <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />*/}
-                  {/*</Badge>*/}
-                <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
-                  <Avatar
-                      icon={
-                        <img src={`https://bing.ioliu.cn/v1?d=${message.fromUserId}&w=32&h=32`} alt={'User avatar'} />
-                      }
-                      style={{ fontSize: "20px" }}
-                  />
-                </Badge>
-              </Popover>
-            </Dropdown>
-          ) : (
-            <Button
-              style={{ backgroundColor: "#6F3BF5" }}
-              onClick={() => handleClick("/login")}
-              type={"primary"}
-            >
-              Login / Register
-            </Button>
-          )}
-        </Col>
-      </Row>
-    </div>
+                    Login / Register
+                  </Button>
+
+              )}
+            </Row>
+          </Col>
+        </Row>
+      </div>
   );
 };
+
 
 export default Header;
