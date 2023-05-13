@@ -1,9 +1,6 @@
 import { Avatar, Badge,Button, Col, Dropdown, Row, Popover, message} from "antd";
 import { useEffect, useState } from "react";
-import {
-  SearchOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import {SearchOutlined} from "@ant-design/icons";
 import styles from "./header.module.scss";
 import { cleanHasNew, getHasNew } from "helpers/api/user";
 import Cookies from "js-cookie";

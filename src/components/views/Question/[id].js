@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 //import axios from "axios";
 import moment from "moment/moment";
-import { Button, Card, Col, Divider, Image, message, Pagination, Row, Dropdown, Menu, Select, Space} from "antd";
+import { Button, Card, Col, Divider, Image, message, Pagination, Row, Dropdown, Menu, Space} from "antd";
 import { CommentOutlined, LikeTwoTone, TranslationOutlined, FastBackwardOutlined, SortAscendingOutlined, DownOutlined} from "@ant-design/icons";
 import { getSomeAnswerNew, evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
