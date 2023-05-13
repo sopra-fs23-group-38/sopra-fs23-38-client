@@ -21,9 +21,7 @@ export function newAnswer(data) {
 }
 //
 export function evaluate(params) {
-    return requests.post(`/answer/vote`, {
-        params: params
-    })
+    return requests.post(`/answer/vote?ID=${params.ID}&UporDownVote=${params.UporDownVote}`)
 }
 //
 export function getAnswersWriteBy(params) {
