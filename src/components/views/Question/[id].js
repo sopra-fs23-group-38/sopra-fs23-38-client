@@ -169,7 +169,7 @@ const QuestionDetail = ({  }) => {
         setSortByVoteCount(!sortByVoteCount);
     };
 
-    const {Option} = Select;
+    //const {Option} = Select;
 
     const TransMenu = (
         <Menu onClick={handleLanguageChange}>
@@ -221,23 +221,24 @@ const QuestionDetail = ({  }) => {
                             <p className={styles.date}>{moment(article.question.change_time).format('ll')}</p>
                         </Col>
                         <Dropdown overlay={TransMenu}>
-                            <a onClick={(e) => e.preventDefault()}>
+                            <button onClick={(e) => e.preventDefault()}>
                                 <Space>
                                     Translate to
                                     <DownOutlined />
                                 </Space>
-                            </a>
+                            </button>
                         </Dropdown>
                         <Col>
                             <Button
-                              style={{ backgroundColor: isTrans ? "#3b98f5" : "#3B7AF5" }}
-                              disabled={isTrans}
-                              onClick={translateTitle}
-                              type="primary"
-                              icon={<TranslationOutlined />}
+                                style={{ backgroundColor: isTrans ? "#3b98f5" : "#3B7AF5" }}
+                                disabled={isTrans}
+                                onClick={translateTitle}
+                                type="primary"
+                                icon={<TranslationOutlined />}
                             >
                             </Button>
-                          </Col>
+                        </Col>
+
                         <Col>
                             <Button
                                 style={{ marginLeft: "8px" }}

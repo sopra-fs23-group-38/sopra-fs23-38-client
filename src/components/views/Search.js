@@ -19,8 +19,8 @@ const Search = () => {
         });
     };
 
-    const handleSearchTypeChange = (value) => {
-        setSearchType(value);
+    const handleSearchTypeChange = (searchType) => {
+        setSearchType(searchType);
     };
 
     return (
