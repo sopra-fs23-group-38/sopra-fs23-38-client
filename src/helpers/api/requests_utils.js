@@ -26,7 +26,7 @@ requests.interceptors.response.use(
         const result = response.data;
 
         if (response.status === 401) {
-            return Promise.reject(new Error(result.msg || "您的登录已失效"));
+            return Promise.reject(new Error(result.msg || "Your login has expired!"));
         }
 
         return result;

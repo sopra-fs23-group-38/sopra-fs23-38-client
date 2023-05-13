@@ -10,7 +10,7 @@ const { Option } = Select;
 
 const Search = () => {
     const [items, setItems] = useState([]);
-   // const [searchType, setSearchType] = useState('All');
+    const [searchType, setSearchType] = useState('All');
     const history = useHistory();
 
     const onFinish = (values) => {
@@ -30,16 +30,6 @@ const Search = () => {
 
                 <Form onFinish={onFinish} className={styles.form}>
                     <Row>
-                        <Col span={2}>
-                            <Button
-                                style={{ marginRight: "16px", marginTop: "38px" }}
-                                shape="circle"
-                                icon={<SearchOutlined />}
-                                type={"text"}
-                                size={"large"}
-                            />
-                        </Col>
-
                         <Col span={22}>
                             <Form.Item
                                 name="keyword"
