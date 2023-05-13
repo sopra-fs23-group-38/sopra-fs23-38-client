@@ -1,4 +1,4 @@
-import { Avatar, Badge,Button, Col, Dropdown, Row, Popover} from "antd";
+import { Avatar, Badge,Button, Col, Dropdown, Row, Popover, message} from "antd";
 import { useEffect, useState } from "react";
 import {
   SearchOutlined,
@@ -162,10 +162,18 @@ const Header = () => {
                 }}
                 offset={[10,20]}
               >
-                  <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
-                      <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />
-                  </Badge>
-                </Popover> 
+                  {/*<Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>*/}
+                  {/*    <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />*/}
+                  {/*</Badge>*/}
+                <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
+                  <Avatar
+                      icon={
+                        <img src={`https://bing.ioliu.cn/v1?d=${message.fromUserId}&w=32&h=32`} alt={'User avatar'} />
+                      }
+                      style={{ fontSize: "20px" }}
+                  />
+                </Badge>
+              </Popover>
             </Dropdown>
           ) : (
             <Button
