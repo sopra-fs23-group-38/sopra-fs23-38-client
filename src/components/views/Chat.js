@@ -11,7 +11,7 @@ const Chat = () => {
     const [form] = Form.useForm();
     const [messages, setMessages] = useState([]);
     const [user, setUser] = useState({});
-    //const [socket, setSocket] = useState(null);
+    const [socket, setSocket] = useState(null);
     let { fromUserId, toUserId } = location.state || {};
     if (!fromUserId){
         const urlParams = new URLSearchParams(window.location.search);
@@ -42,7 +42,7 @@ const Chat = () => {
         };
     }, [fromUserId, toUserId]);
     const connectError= (err) => {
-        console.log("网络异常")
+        console.log("Internet Error", err);
         message.error("Web socket Interrupted");
         // alert("Web socket Interrupted")
     }
