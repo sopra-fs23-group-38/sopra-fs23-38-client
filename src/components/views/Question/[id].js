@@ -1,34 +1,35 @@
 import { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import axios from "axios";
+//import axios from "axios";
 import moment from "moment/moment";
-import { Button, Card, Col, Divider, Image, message, Pagination, Row, Dropdown, Menu} from "antd";
-import { CommentOutlined, LikeTwoTone, TranslationOutlined, FastBackwardOutlined, SortAscendingOutlined} from "@ant-design/icons";
+import { Button, Card, Col, Divider, Image, message, Pagination, Row, Dropdown, Menu, Select, Space} from "antd";
+import { CommentOutlined, LikeTwoTone, TranslationOutlined, FastBackwardOutlined, SortAscendingOutlined, DownOutlined} from "@ant-design/icons";
 import { getSomeAnswerNew, evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
 import useAuth from "helpers/api/auth";
 import styles from "styles/views/question.create.module.scss";
-import Cookies from "js-cookie";
+//import Cookies from "js-cookie";
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
-const requests = axios.create({
-    baseURL: "https://sopra-fs23-group-38-server.oa.r.appspot.com/",
-    withCredentials: true,
-    // baseURL: process.env.API_HOST // Change to your desired host and port
-});
-requests.interceptors.request.use(
-    (config) => {
-        config.headers["content-type"] = "multipart/form-data";
-        config.headers["Access-Control-Allow-Origin"] = "*";
-        config.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
-        config.headers['token'] = Cookies.get('token')
-        return config;
-    },
-    (error) => {
-        console.log(error);
-        return Promise.reject(error);
-    }
-);
+// import * as https from "http = axios.create({
+//     baseURL: "https://localhost:8080",//"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
+//     withCredentials: true,
+//     // baseURL: process.env.API_HOST // Change to your desired host and port
+// });
+// requests.interceptors.request.use(
+//     (config) => {
+//         config.headers["content-type"] = "multipart/form-data";
+//         config.headers["Access-Control-Allow-Origin"] = "*";
+//         config.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
+//         config.headers['token'] = Cookies.get('token')
+//         return config;
+//     },
+//     (error) => {
+//         console.log(error);
+//         return Promise.reject(error);
+//     }
+// );s";
+// const requests
 var stompClient = null;
 
 // eslint-disable-next-line no-empty-pattern
@@ -37,13 +38,14 @@ const QuestionDetail = ({  }) => {
     const { id } = useParams();
     const router = useHistory();
     const [isTrans, setIsTrans] = useState(false);
+    const [seletedLanguage, setSeletedLanguage] = useState("en");
     const [article, setArticle] = useState(null);
     const [answers, setAnswers] = useState([]);
     const [answerCount, setAnswerCount] = useState(null);
     const [user, setUser] = useState({});
 
     useEffect(() => {
-        const newSocket = new SockJS("http://localhost:8080/my-websocket");
+        const newSocket = new SockJS("https://localhost:8080/my-websocket");
         let stompClient;
         stompClient = over(newSocket);
         stompClient.connect({}, function() {
@@ -62,7 +64,7 @@ const QuestionDetail = ({  }) => {
             // eslint-disable-next-line no-use-before-define
         }, connectError);
         const connectError = (err) => {
-            console.log("网络异常")
+            console.log("Failed to connect to web socket server:")
             message.error("Web socket Interrupted");
             setTimeout(() => {
                 console.log("Attempting to reconnect...");
@@ -115,10 +117,12 @@ const QuestionDetail = ({  }) => {
     const translateTitle = async () => {
         try {
             const response1 = await translate({
-                content: article.question.title
+                content: article.question.title,
+                targetLanguage: seletedLanguage
             });
             const response2 = await translate({
-                content: article.question.description
+                content: article.question.description,
+                targetLanguage: seletedLanguage
             });
 
             const newArticle = { ...article };
@@ -130,6 +134,10 @@ const QuestionDetail = ({  }) => {
         } catch (error) {
             console.error("Translation error:", error);
         }
+    };
+
+    const handleLanguageChange = ({ selectedLanguage }) => {
+        setSeletedLanguage(selectedLanguage);
     };
 
 
@@ -160,6 +168,19 @@ const QuestionDetail = ({  }) => {
     const handleSortByVoteCount = () => {
         setSortByVoteCount(!sortByVoteCount);
     };
+
+    const {Option} = Select;
+
+    const TransMenu = (
+        <Menu onClick={handleLanguageChange}>
+            <Menu.Item key="en">English</Menu.Item>
+            <Menu.Item key="fr">French</Menu.Item>
+            <Menu.Item key="es">Spanish</Menu.Item>
+            <Menu.Item key="de">German</Menu.Item>
+            <Menu.Item key="zh">Chinese</Menu.Item>
+        </Menu>
+    );
+
 
     const menu = (
       <Menu onClick={handleSortByVoteCount}>
@@ -199,8 +220,15 @@ const QuestionDetail = ({  }) => {
                             }
                             <p className={styles.date}>{moment(article.question.change_time).format('ll')}</p>
                         </Col>
-
-                          <Col>
+                        <Dropdown overlay={TransMenu}>
+                            <a onClick={(e) => e.preventDefault()}>
+                                <Space>
+                                    Translate to
+                                    <DownOutlined />
+                                </Space>
+                            </a>
+                        </Dropdown>
+                        <Col>
                             <Button
                               style={{ backgroundColor: isTrans ? "#3b98f5" : "#3B7AF5" }}
                               disabled={isTrans}
@@ -208,7 +236,6 @@ const QuestionDetail = ({  }) => {
                               type="primary"
                               icon={<TranslationOutlined />}
                             >
-                              {/*{isTrans ? "Translation Finish" : "Translate Question"}*/}
                             </Button>
                           </Col>
                         <Col>
