@@ -39,6 +39,7 @@ const QuestionDetail = ({  }) => {
     const [isTrans, setIsTrans] = useState(false);
     const [seletedLanguage, setSeletedLanguage] = useState("en");
     const [article, setArticle] = useState(null);
+    const [originalArticle, setOriginalArticle] = useState(null);
     const [answers, setAnswers] = useState([]);
     const [answerCount, setAnswerCount] = useState(null);
     const [user, setUser] = useState({});
@@ -113,31 +114,44 @@ const QuestionDetail = ({  }) => {
     };
 
 
-
-    const translateTitle = async () => {
-        try {
-            const response1 = await translate({
-                content: article.question.title,
-                targetLanguage: seletedLanguage
-            });
-            const response2 = await translate({
-                content: article.question.description,
-                targetLanguage: seletedLanguage
-            });
-
-            const newArticle = { ...article };
-            newArticle.question.title = response1;
-            newArticle.question.description = response2;
-            setArticle(newArticle);
-
-            setIsTrans(true);
-        } catch (error) {
-            console.error("Translation error:", error);
-        }
+    const handleLanguageChange = (menuItem) => {
+        setSeletedLanguage(menuItem.key);
     };
 
-    const handleLanguageChange = ({ selectedLanguage }) => {
-        setSeletedLanguage(selectedLanguage);
+
+
+    const toggleTrans = async () => {
+        if(isTrans) {
+            setArticle(originalArticle);
+            console.log("after trans original article", originalArticle);
+            console.log("after trans article",article);
+            setIsTrans(false);
+        }
+        else {
+            try {
+                console.log("before original", originalArticle);
+                console.log("before article",article);
+                setOriginalArticle(article);
+                console.log("after set original article", originalArticle);
+                const response1 = await translate({
+                    content: article.question.title,
+                    targetLanguage: seletedLanguage
+                });
+                const response2 = await translate({
+                    content: article.question.description,
+                    targetLanguage: seletedLanguage
+                });
+
+                const newArticle = { ...article };
+                newArticle.question.title = response1;
+                newArticle.question.description = response2;
+                setArticle(newArticle);
+
+                setIsTrans(true);
+            } catch (error) {
+                console.error("Translation error:", error);
+            }
+        }
     };
 
 
@@ -184,10 +198,19 @@ const QuestionDetail = ({  }) => {
 
     const menu = (
       <Menu onClick={handleSortByVoteCount}>
-          <Menu.Item key="1">chronological order</Menu.Item>
-          <Menu.Item key="2">vote count</Menu.Item>
+          <Menu.Item key="1">vote count</Menu.Item>
+          <Menu.Item key="2">chronic order</Menu.Item>
       </Menu>
     );
+
+    const languageLabels = {
+        en: "English",
+        fr: "French",
+        es: "Spanish",
+        de: "German",
+        zh: "Chinese"
+    };
+
 
     return (
         <div className={styles.container}>
@@ -218,19 +241,20 @@ const QuestionDetail = ({  }) => {
                             }
                             <p className={styles.date}>{moment(article.question.change_time).format('ll')}</p>
                         </Col>
-                        <Dropdown overlay={TransMenu}>
-                            <button onClick={(e) => e.preventDefault()}>
-                                <Space>
-                                    Translate to
-                                    <DownOutlined />
-                                </Space>
-                            </button>
-                        </Dropdown>
+                        <Col>
+                            <Dropdown overlay={TransMenu}>
+                                <Button onClick={(e) => e.preventDefault()}>
+                                    <Space>
+                                        Translate to {languageLabels[seletedLanguage]}
+                                        <DownOutlined />
+                                    </Space>
+                                </Button>
+                            </Dropdown>
+                        </Col>
                         <Col>
                             <Button
-                                style={{ backgroundColor: isTrans ? "#3b98f5" : "#3B7AF5" }}
-                                disabled={isTrans}
-                                onClick={translateTitle}
+                                style={{ backgroundColor: isTrans ? "#537494" : "#3B7AF5" }}
+                                onClick={toggleTrans}
                                 type="primary"
                                 icon={<TranslationOutlined />}
                             >
