@@ -18,40 +18,61 @@ const Index = Home => {
     const handleClick = () => {
         history.push("/question/create");
     };
+    const handlePageChange = (page) => {
+        // 导航到当前页面，触发页面的重新加载
+        setPage(page)
+        history.push(`/index/${page}`);
+    };
+
 
     useEffect(() => {
-        console.log("dsss")
         if (localStorage.getItem("user")) {
             setUser(JSON.parse(localStorage.getItem("user")));
-            console.log(user)
         }
+        const url = window.location.href;
+        const id = url.split('/').pop();
+        setPage(id)
 
         var newSocket = new SockJS("http://localhost:8080/my-websocket");
         stompClient = over(newSocket);
+
         stompClient.connect({}, function() {
             stompClient.subscribe("/topic/howManyQuestions/", function(msg) {
                 let body = JSON.parse(msg.body)
+                const url = window.location.href;
+                const id = url.split('/').pop();
+                setPage(id)
+                if (id>body.howmanypages){
+
+                    handlePageChange(1)
+                    setPage(id)
+                }
                 setTotal(body.howmanypages);
                 console.log(body)
-            })
-            stompClient.subscribe("/topic/listQuestions/"+page.toString(), function(msg) {
-                let body = JSON.parse(msg.body)
-                setItems(body);
-                console.log(body)
-            })
-
-            // eslint-disable-next-line no-use-before-define
+            });
+            subscribeToQuestions();
         }, connectError);
+        const subscribeToQuestions = () => {
+            const topic = `/topic/listQuestions/${page}`;
+            stompClient.subscribe(topic, function(msg) {
+                let destination = msg.headers.destination;
+                let parts = destination.split("/");
+                let lastNumber = parts[parts.length - 1];
+                const url = window.location.href;
+                const id = url.split('/').pop();
+                if (lastNumber===id){
+                    let body = JSON.parse(msg.body);
+                    setItems(body);
+                }
 
-
+            });
+        };
         const connectError = (err) => {
             console.log("网络异常")
             message.error("Web socket Interrupted");
-
             setTimeout(() => {
                 console.log("Attempting to reconnect...");
                 setSocket(null);
-
                 const newSocket = new SockJS("http://localhost:8080/my-websocket");
                 stompClient = over(newSocket);
                 setSocket(stompClient);
@@ -61,6 +82,12 @@ const Index = Home => {
             console.log('WebSocket disconnected!');
             connectError();
         });
+        setTimeout(() => {
+            stompClient.send("/app/getHowManyQuestions/", {});
+            stompClient.send("/app/getAllQuestions/" + page.toString(), {});
+
+        }, 1000);
+
         return () => {
             socket && socket.disconnect();
             setSocket(null);
@@ -171,7 +198,8 @@ const Index = Home => {
                                     <Content
                                         article={{
                                             id: item.question.id,
-                                            headImg: "error",
+                                            userid: item.question.who_asks,
+                                            headImg: `https://bing.ioliu.cn/v1?d=${item.question.who_asks}&w=32&h=32`,
                                             title: item.question.title,
                                             name: item.who_asks_name,
                                             createTime: item.question.change_time,
@@ -186,7 +214,7 @@ const Index = Home => {
                             );
                         })}
                     <Pagination
-                        onChange={(page) => setPage(page)}
+                        onChange={(page) => handlePageChange(page)}
                         style={{ marginTop: "24px", textAlign: "center" }}
                         defaultPageSize={3}
                         defaultCurrent={1}
