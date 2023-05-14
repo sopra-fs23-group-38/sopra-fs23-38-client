@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Card, Divider, Form, Input, message } from "antd";
+import { Button, Card, Divider, Form, Image, Input, message } from "antd";
 import { useLocation } from "react-router-dom";
 import SockJS from 'sockjs-client';
+import { insertMessage, listMessage } from "helpers/api/message";
 import styles from "styles/views/chat.module.scss";
 import { over } from 'stompjs';
 var stompClient = null;
@@ -11,7 +12,7 @@ const Chat = () => {
     const [form] = Form.useForm();
     const [messages, setMessages] = useState([]);
     const [user, setUser] = useState({});
-    const [setSocket] = useState(null);
+    const [socket, setSocket] = useState(null);
     let { fromUserId, toUserId } = location.state || {};
     if (!fromUserId){
         const urlParams = new URLSearchParams(window.location.search);
@@ -75,19 +76,30 @@ const Chat = () => {
               <Card title={'Chat With Other Users!'} style={{ width: '50%', maxWidth: '756px' }}>
                   <div id={'container'} style={{ maxHeight: '512px', overflowY: 'scroll' }}>
                       {messages.map((message) => (
-                        <div key={message.id} style={{ display: 'flex', justifyContent: message.fromUserId === user.id ? 'flex-end' : 'flex-start' }}>
+                        <div
+                          key={message.id}
+                          style={{
+                              display: 'flex',
+                              justifyContent: message.fromUserId === user.id ? 'flex-end' : 'flex-start',
+                          }}
+                        >
                             <div style={{ display: 'flex', marginBottom: '8px' }}>
-                                <div
-                                  style={{
-                                      width: '32px',
-                                      height: '32px',
-                                      borderRadius: '50%',
-                                      overflow: 'hidden',
-                                      marginRight: '8px',
-                                  }}
-                                >
-                                    <img src={`https://bing.ioliu.cn/v1?d=${message.fromUserId}&w=32&h=32`} alt={'User avatar'} />
-                                </div>
+                                {message.fromUserId !== user.id && (
+                                  <div
+                                    style={{
+                                        width: '32px',
+                                        height: '32px',
+                                        borderRadius: '50%',
+                                        overflow: 'hidden',
+                                        marginRight: '8px',
+                                    }}
+                                  >
+                                      <img
+                                        src={`https://bing.ioliu.cn/v1?d=${message.fromUserId}&w=32&h=32`}
+                                        alt={'User avatar'}
+                                      />
+                                  </div>
+                                )}
                                 <div
                                   style={{
                                       padding: '8px',
@@ -98,12 +110,35 @@ const Chat = () => {
                                       maxWidth: '70%',
                                       backgroundColor: message.fromUserId === user.id ? '#6F3BF5' : '#fff',
                                       color: message.fromUserId === user.id ? '#fff' : '#000',
+                                      marginLeft: message.fromUserId === user.id ? '8px' : '0',
+                                      alignSelf: 'flex-end',
                                   }}
                                 >
                                     {message.content}
                                 </div>
+                                {message.fromUserId === user.id && (
+                                  <div
+                                    style={{
+                                        width: '32px',
+                                        height: '32px',
+                                        borderRadius: '50%',
+                                        overflow: 'hidden',
+                                        marginLeft: '8px',
+                                    }}
+                                  >
+                                      <img
+                                        src={`https://bing.ioliu.cn/v1?d=${message.fromUserId}&w=32&h=32`}
+                                        alt={'User avatar'}
+                                      />
+                                  </div>
+                                )}
                             </div>
                         </div>
+
+
+
+
+
                       ))}
                       <Divider />
                       <div ref={messagesEndRef} />
