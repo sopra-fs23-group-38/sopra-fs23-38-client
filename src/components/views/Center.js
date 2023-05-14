@@ -6,38 +6,67 @@ import {deleteAnswer, getAnswersWriteBy, updateAnswer} from "helpers/api/answer"
 import { deleteComment, getCommentsBy, updateComment } from "helpers/api/comment";
 import {listNotifications} from "helpers/api//notification";
 import {useHistory} from "react-router-dom";
-
+import SockJS from "sockjs-client";
+import { over } from "stompjs";
+var stompClient = null;
 const Center = () => {
     const [questions, setQuestions] = useState([])
     const [answers, setAnswers] = useState([])
     const [comments, setComments] = useState([])
     const [notifications, setNotifications] = useState([])
+    const [userId, setuserId] = useState(null)
+    const [usermyselfId, setusermyselfId] = useState(null)
     const history = useHistory();
 
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem("user"))
-        getQuestionsAskedBy({who_asks: user.id}).then(response => {
+        setuserId(parseInt(window.location.href.split('/').pop().substring(1)) / 3)
+        setusermyselfId(JSON.parse(localStorage.getItem("user")).id)
+
+        console.log(userId,usermyselfId)
+        getQuestionsAskedBy({who_asks: parseInt(window.location.href.split('/').pop().substring(1)) / 3}).then(response => {
             setQuestions(response)
         })
 
-        getAnswersWriteBy({answererID: user.id}).then(response => {
+        getAnswersWriteBy({answererID: parseInt(window.location.href.split('/').pop().substring(1)) / 3}).then(response => {
             setAnswers(response)
         })
 
-        getCommentsBy({ who_comments: user.id }).then(response => {
+        getCommentsBy({ who_comments: parseInt(window.location.href.split('/').pop().substring(1)) / 3 }).then(response => {
             setComments(response)
         })
+        if (JSON.parse(localStorage.getItem("user")).id ===parseInt(window.location.href.split('/').pop().substring(1)) / 3){
+            const newSocket = new SockJS("http://localhost:8080/my-websocket");
+            let stompClient;
+            stompClient = over(newSocket);
 
-        const timer = setInterval(() => {
-            const user = JSON.parse(localStorage.getItem("user"))
-            listNotifications({ toUserId: user.id }).then(response => {
-                setNotifications(response)
-                console.log(response)
-            })
-        }, 1000);
+            const user = JSON.parse(localStorage.getItem("user"));
+            const toUserId = user.id;
+            stompClient.connect({}, () => {
+                // 订阅通知主题
+                stompClient.subscribe("/topic/notifications/"+toUserId, (msg) => {
+                    const body = JSON.parse(msg.body);
+                    setNotifications(body);
+                });
+            });
+            setTimeout(() => {
+                // eslint-disable-next-line no-unused-expressions
+                stompClient.send("/app/listNotifications", {}, JSON.stringify({ toUserId }));
+            }, 500); // 延迟1秒
+            // stompClient.send("/app/listNotifications", {}, JSON.stringify({ toUserId }));
 
-        return () => clearInterval(timer);
-    }, [])
+        //     const timer = setInterval(() => {
+        //     const user = JSON.parse(localStorage.getItem("user"))
+        //     listNotifications({ toUserId: user.id }).then(response => {
+        //         setNotifications(response)
+        //         console.log(response)
+        //     })
+        // }, 1000);
+        //
+        //
+        // return () => clearInterval(timer);
+        }
+    }, []);
+
 
     const [editQuestionOpen, setEditQuestionOpen] = useState(false)
     const [question, setQuestion] = useState({})
@@ -48,6 +77,11 @@ const Center = () => {
         }).then(response => {
             if (response.success && response.success === 'true') {
                 message.info('Success')
+                setTimeout(() => {
+                    stompClient.send("/app/getHowManyQuestions/", {});
+                    stompClient.send("/app/getAllQuestions/" + 1, {});
+
+                }, 500);
                 setQuestions(prevState => {
                     return prevState.filter((item) => {
                         if (item.questionId !== id) {
@@ -70,6 +104,11 @@ const Center = () => {
         }).then(response => {
             if (response.success && response.success === 'true') {
                 message.info('Success');
+                setTimeout(() => {
+                    stompClient.send("/app/getHowManyQuestions/", {});
+                    stompClient.send("/app/getAllQuestions/" + 1, {});
+
+                }, 500);
                 setEditQuestionOpen(false);
                 setQuestions(prevState => {
                     const updatedQuestions = prevState.map((item) => {
@@ -94,6 +133,11 @@ const Center = () => {
             answerId: id
         }).then(response => {
             if (response.success && response.success === 'true') {
+                setTimeout(() => {
+                    // eslint-disable-next-line no-unused-expressions
+                    stompClient.send("/app/getQuestionById", {}, JSON.stringify({ ID: answer.questionId }));
+                    stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: answer.questionId }));
+                }, 500); // 延迟1秒
                 message.info('Success')
                 setAnswers(prevState => {
                     return prevState.filter((item) => {
@@ -110,11 +154,16 @@ const Center = () => {
     }
 
     const editAnswer = (values) => {
+        console.log(answer)
         updateAnswer({
             editId: answer.answerId,
             newContent: values.answer
         }).then(response => {
             if (response.success && response.success === 'true') {
+                setTimeout(() => {
+                    stompClient.send("/app/getQuestionById", {}, JSON.stringify({ ID: answer.questionId }));
+                    stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: answer.questionId }));
+                }, 500); // 延迟1秒
                 message.info('Success');
                 setEditAnswerOpen(false);
                 setAnswers(prevState => {
@@ -199,10 +248,16 @@ const Center = () => {
 
                                         <div style={{ position: 'absolute', right: '8px' }}>
                                             <Button onClick={() => {
+                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
                                                 setEditQuestionOpen(true)
-                                                setQuestion(item)
+                                                setQuestion(item)}
                                             }} style={{ backgroundColor: '#6F3BF5', marginRight: '8px', marginLeft: '8px'}} type={"primary"}>Edit</Button>
-                                            <Button  onClick={() => deleteQuestionById(item.questionId)} type={"primary"} danger>Delete</Button>
+                                            <Button  onClick={() => {
+                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                    deleteQuestionById(item.questionId)}
+                                                }
+                                            }
+                                               type={"primary"} danger>Delete</Button>
                                         </div>
                                     </div>
                                 </Card>
@@ -230,11 +285,16 @@ const Center = () => {
 
                                         <div style={{ position: 'absolute', right: '8px' }}>
                                             <Button onClick={() => {
+                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
                                                 console.log(item)
                                                 setEditAnswerOpen(true)
-                                                setAnswer(item)
+                                                setAnswer(item)}
                                             }} style={{ backgroundColor: '#6F3BF5', marginRight: '8px', marginLeft: '8px'}} type={"primary"}>Edit</Button>
-                                            <Button onClick={() => deleteAnswerById(item.answerId)} type={"primary"} danger>Delete</Button>
+                                            <Button onClick={() =>
+                                            {if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                deleteAnswerById(item.answerId)}
+                                            }
+                                            } type={"primary"} danger>Delete</Button>
                                         </div>
                                     </div>
                                 </Card>
@@ -262,10 +322,13 @@ const Center = () => {
 
                                         <div style={{ position: 'absolute', right: '8px' }}>
                                             <Button onClick={() => {
+                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
                                                 setEditCommentOpen(true)
-                                                setComment(item)
+                                                setComment(item)}
                                             }} style={{ backgroundColor: '#6F3BF5', marginRight: '8px', marginLeft: '8px'}} type={"primary"}>Edit</Button>
-                                            <Button onClick={() => deleteCommentById(item.commentId)} type={"primary"} danger>Delete</Button>
+                                            <Button onClick={() => {
+                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                deleteCommentById(item.commentId)}}} type={"primary"} danger>Delete</Button>
                                         </div>
                                     </div>
                                 </Card>
@@ -307,6 +370,13 @@ const Center = () => {
     return (
         <div className={styles.container}>
             <p className={styles.title}>User Center</p>
+
+            <Button onClick={() => {
+                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 !== JSON.parse(localStorage.getItem("user")).id) {
+                history.push({
+                pathname: "/chat", state: { fromUserId: JSON.parse(localStorage.getItem("user")).id, toUserId: parseInt(window.location.href.split('/').pop().substring(1)) / 3 }
+            })}}} type={"primary"}>chat</Button>
+
             <Tabs tabPosition={'left'} items={items}/>
             <Modal destroyOnClose={true} open={editQuestionOpen} onCancel={() => {
                 setEditQuestionOpen(false)
