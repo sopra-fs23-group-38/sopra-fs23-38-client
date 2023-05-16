@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useState, useEffect,Fragment } from "react";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import moment from "moment/moment";
 import { Button, Card, Col, Divider, Image, message, Pagination, Row, Dropdown, Menu, Space} from "antd";
@@ -37,24 +37,38 @@ const QuestionDetail = ({  }) => {
     const { id } = useParams();
     const router = useHistory();
     const [isTrans, setIsTrans] = useState(false);
-    const [seletedLanguage, setSeletedLanguage] = useState("en");
     const [article, setArticle] = useState(null);
-    const [originalArticle, setOriginalArticle] = useState(null);
     const [answers, setAnswers] = useState([]);
     const [answerCount, setAnswerCount] = useState(null);
     const [user, setUser] = useState({});
+    const [seletedLanguage, setSeletedLanguage] = useState("en");
+    const location = useLocation();
+    const [originalArticle, setOriginalArticle] = useState(null);
 
     useEffect(() => {
+
         const newSocket = new SockJS("http://localhost:8080/my-websocket");
-        let stompClient;
+        // let stompClient;
         stompClient = over(newSocket);
         stompClient.connect({}, function() {
             stompClient.subscribe("/topic/getQuestionById/"+id, function(msg) {
                 let body = JSON.parse(msg.body)
-                setArticle(body);
-                console.log(article)
-                setAnswerCount(body?.answerCount);
-                console.log(body)
+                let destination = msg.headers.destination;
+                let parts = destination.split("/");
+                let lastNumber = parts[parts.length - 1];
+                const url = window.location.href;
+                const id = url.split('/').pop();
+                // console.log(id+lastNumber);
+                if (lastNumber === id) {
+                    let body = JSON.parse(msg.body);
+                    // console.log(body)
+                    setArticle(body);
+                    setOriginalArticle(body);
+                    // console.log(body?.answerCount)
+                    setAnswerCount(body?.answerCount);
+                    // console.log(body)
+                }
+
             })
             stompClient.subscribe("/topic/getAllAnstoOneQ/"+id, function(msg) {
                 let body = JSON.parse(msg.body)
@@ -85,8 +99,7 @@ const QuestionDetail = ({  }) => {
                 stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: id }));
             }, 500); // 延迟1秒
         }
-    }, [id, stompClient]);
-
+    }, [id]);
 
     const handleEvaluate = async (id) => {
         try {
@@ -112,8 +125,6 @@ const QuestionDetail = ({  }) => {
             console.error("Translation error:", error);
         }
     };
-
-
     const handleLanguageChange = (menuItem) => {
         setSeletedLanguage(menuItem.key);
     };
@@ -121,28 +132,27 @@ const QuestionDetail = ({  }) => {
 
 
     const toggleTrans = async () => {
-        if(isTrans) {
+        if (article.question.title !== originalArticle.question.title) {
             setArticle(originalArticle);
             console.log("after trans original article", originalArticle);
-            console.log("after trans article",article);
+            console.log("after trans article", article);
             setIsTrans(false);
-        }
-        else {
+        } else {
             try {
                 console.log("before original", originalArticle);
-                console.log("before article",article);
-                setOriginalArticle(article);
+                console.log("before article", article);
+                const copiedArticle = JSON.parse(JSON.stringify(article)); // Perform deep copy
                 console.log("after set original article", originalArticle);
                 const response1 = await translate({
-                    content: article.question.title,
-                    targetLanguage: seletedLanguage
+                    content: copiedArticle.question.title,
+                    targetLanguage: seletedLanguage,
                 });
                 const response2 = await translate({
-                    content: article.question.description,
-                    targetLanguage: seletedLanguage
+                    content: copiedArticle.question.description,
+                    targetLanguage: seletedLanguage,
                 });
 
-                const newArticle = { ...article };
+                const newArticle = { ...copiedArticle };
                 newArticle.question.title = response1;
                 newArticle.question.description = response2;
                 setArticle(newArticle);
