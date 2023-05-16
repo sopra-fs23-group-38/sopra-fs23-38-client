@@ -1,23 +1,21 @@
 import { Avatar, Badge,Button, Col, Dropdown, Row, Popover, message} from "antd";
 import { useEffect, useState } from "react";
-import {SearchOutlined} from "@ant-design/icons";
+import {
+  AlertTwoTone,
+  SearchOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import styles from "./header.module.scss";
 import { cleanHasNew, getHasNew } from "helpers/api/user";
 import Cookies from "js-cookie";
 import { useHistory } from "react-router-dom";
-
+import SockJS from "sockjs-client";
+import { over } from "stompjs";
+var stompClient = null;
 const Header = () => {
   const history = useHistory();
   const [isLogin, setIsLogin] = useState(false);
-  const [hasNew, setHasNew] = useState(0);
-
-  const notificationMessage = () => {
-    if (hasNew === 1) {
-      return 'You have 1 new notification.';
-    } else {
-      return `You have ${hasNew} new notifications.`;
-    }
-  };
+  const [hasNew, setHasNew] = useState(false);
 
   useEffect(() => {
     const cookie = Cookies.get("token", "");
@@ -29,14 +27,19 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-     const timer = setInterval(() => {
-           getHasNew().then(response => {
-              setHasNew(response.has_new);
-             });
-       }, 1000);
+      var newSocket = new SockJS("http://localhost:8080/my-websocket");
+      stompClient = over(newSocket);
+      stompClient.connect({}, connectSuccess, connectError);
+    }, []);
 
-      return () => clearInterval(timer);
-   }, []);
+  const connectSuccess = () =>{
+    stompClient.subscribe('/topic/has_new/'+Cookies.get("token", ""),(msg) =>{
+      let body = JSON.parse(msg.body)
+      setHasNew(body.has_new);
+    })}
+  const connectError= (err) => {
+    console.log("网络异常")
+  }
 
   /*
   const getMenu = () => {
@@ -53,15 +56,19 @@ const Header = () => {
   const clickLogout = () => {
     // Cookies.remove('token');
     Cookies.remove("token");
+    window.location.href ="/Login";
 
-    history.push("/Login");
+
     window.location.reload();
   };
   const clickCenter = () => {
     cleanHasNew();
-    // history.push("/Center");
-    window.location.href = "/center";
     setHasNew(0);
+    // history.push("/Center");
+    const cookie = Cookies.get("token", "");
+    // history.push(`/index/${page}`);
+    window.location.href = `/center/${cookie}`;
+
   };
   const handleSearch = () => {
     console.log(history);
@@ -73,7 +80,7 @@ const Header = () => {
       key: "1",
       label: (
         <div onClick={clickCenter}>
-          <span>User Center</span>
+          <span>Center</span>
         </div>
       ),
     },
@@ -87,108 +94,95 @@ const Header = () => {
     },
   ];
 
+  const notificationMessage= ()=> {
+    if (hasNew === 1) {
+      return 'You have 1 new notification.';
+    } else {
+      return `You have ${hasNew} new notifications.`;
+    }
+  }
+
   return (
-      <div className={styles.header}>
-        <Row>
-          <Col span={4}>
-            <div className={styles.log}>
-              <span className={styles.logo}>UZH IFI Forum</span>
-            </div>
-          </Col>
-          <Col span={12}>
-            <div style={{ textAlign: "center" }}>
-    <span style={{ fontSize: "20px", fontWeight: "bold", color: "#1890ff" }}>
-      An online Q&A platform for UZH IFI’s study and life!
-    </span>
-            </div>
-          </Col>
-          {/*<Col span={8}>*/}
-          {/*  <Row justify="end">*/}
-          {/*    <Button*/}
-          {/*        style={{ marginRight: "16px" }}*/}
-          {/*        shape="circle"*/}
-          {/*        icon={<SearchOutlined />}*/}
-          {/*        onClick={handleSearch}*/}
-          {/*    />*/}
-          <Col span={8}>
-            <Row justify="end">
-              <Button
-                  style={{
-                    marginRight: "16px",
-                    backgroundColor: "#1890ff",
-                    color: "white",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    padding: "5px 10px"
-                  }}
-                  shape="circle"
-                  icon={<SearchOutlined />}
-                  onClick={handleSearch}
-              />
+    <div className={styles.header}>
+      <Row>
+        <Col span={2} offset={2}>
+          <div className={styles.log}>
+            <span className={styles.logo}>Group38</span>
+          </div>
+        </Col>
+        <Col span={14}>
+          <Button
+            onClick={() => handleClick("/")}
+            type={"text"}
+            style={{ color: "#000", fontSize: "16px" }}
+          >
+            Home
+          </Button>
 
+          {/*<Menu className={styles.menu} mode={"horizontal"} items={getMenu()} onClick={handleClick} />*/}
+        </Col>
+        <Col span={4} offset={2}>
+          <Button
+            style={{ marginRight: "16px" }}
+            shape="circle"
+            icon={<SearchOutlined />}
+            onClick={handleSearch}
+          />
           {isLogin ? (
-                  <Dropdown
-                      overlayClassName={styles.customDropdown}
-                      menu={{
-                        items,
-                      }}
-                      placement="topLeft"
-                      arrow={{
-                        pointAtCenter: true,
-                        }}
-                    >
-                    <Popover
-                        content={
-                          <div
-                              onMouseEnter={() => {
-                                if (hasNew) {
-                                  cleanHasNew();
-                                  setHasNew(0);
-                                }
-                              }}
-                              style={{ fontSize: '18px', fontWeight: 'bold',color: 'red' }}
-                          >
-                            {notificationMessage()} {/* Display the notification message */}
-                          </div>}
-                        title={<span style={{ color: 'blue' }}>Notification</span>}
-                        trigger="hover"
-                        visible={hasNew}
-                        placement="bottom"
-                        arrow={{
-                          pointAtCenter: true,
-                        }}
-                        offset={[20,0]}
-                    >
-                      <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
-                        <Avatar
-                            icon={
-                              <img src={`https://bing.ioliu.cn/v1?d=${message.fromUserId}&w=32&h=32`} alt={'User avatar'} />
-                            }
-                            style={{ fontSize: "20px" }}
-                        />
-                      </Badge>
-                    </Popover>
-                  </Dropdown>
-              ) : (
-                  <Button
-                      style={{
-                        backgroundColor: "#6F3BF5",
-                        color: "white",
-                        fontWeight: "bold",
-                        fontSize: "16px",
-                        padding: "5px 20px"
-                      }}
-                      onClick={() => handleClick("/login")}
-                      type={"primary"}
+            <Dropdown
+              menu={{
+                items,
+              }}
+              placement="topRight"
+              arrow={{
+                pointAtCenter: true,
+              }}
+              offset={[50, 0]}
+            >
+              {/*{hasNew ? (*/}
+              {/*  <Avatar icon={<AlertTwoTone />} />*/}
+              {/*) : (*/}
+              {/*  <Avatar icon={<UserOutlined />} />*/}
+              {/*)}*/}
+              <Popover
+                content={
+                  <div
+                    onMouseEnter={() => {
+                      if (hasNew) {
+                        cleanHasNew();
+                        setHasNew(0);
+                      }
+                    }}
+                    style={{ fontSize: '18px', fontWeight: 'bold',color: 'red' }}
                   >
-                    Login / Register
-                  </Button>
-
-              )}
-            </Row>
-          </Col>
-        </Row>
-      </div>
+                    {notificationMessage()} {/* Display the notification message */}
+                  </div>}
+                title={<span style={{ color: 'blue' }}>Notification</span>}
+                trigger="hover"
+                visible={hasNew}
+                placement="bottom"
+                arrow={{
+                  pointAtCenter: true,
+                }}
+                offset={[10,20]}
+              >
+                <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
+                  <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />
+                </Badge>
+              </Popover>
+            </Dropdown>
+          ) : (
+            <Button
+              style={{ backgroundColor: "#6F3BF5" }}
+              onClick={() => handleClick("/login")}
+              type={"primary"}
+            >
+              Login / Register
+            </Button>
+          )}
+        </Col>
+      </Row>
+    </div>
   );
 };
 
