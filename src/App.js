@@ -1,4 +1,5 @@
 import AppRouter from "components/routing/routers/AppRouter";
+import React from 'react';
 import "styles/globals.scss"
 /**
  * Happy coding!
@@ -8,8 +9,7 @@ import "styles/globals.scss"
 const App = () => {
   return (
     <div>
-      {/*<Header height="100"/>*/}
-      <AppRouter/>
+      <AppRouter />
     </div>
   );
 };
