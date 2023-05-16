@@ -55,14 +55,15 @@ const Header = () => {
 
   const clickLogout = () => {
     // Cookies.remove('token');
-    history.push("/Login");
     Cookies.remove("token");
+    window.location.href ="/Login";
+
 
     window.location.reload();
   };
   const clickCenter = () => {
     cleanHasNew();
-    setHasNew(false);
+    setHasNew(0);
     // history.push("/Center");
     const cookie = Cookies.get("token", "");
     // history.push(`/index/${page}`);
@@ -92,6 +93,14 @@ const Header = () => {
       ),
     },
   ];
+
+  const notificationMessage= ()=> {
+    if (hasNew === 1) {
+      return 'You have 1 new notification.';
+    } else {
+      return `You have ${hasNew} new notifications.`;
+    }
+  }
 
   return (
       <div className={styles.header}>
@@ -133,11 +142,37 @@ const Header = () => {
                 pointAtCenter: true,
               }}
             >
-              {hasNew ? (
-                <Avatar icon={<AlertTwoTone />} />
-              ) : (
-                <Avatar icon={<UserOutlined />} />
-              )}
+              {/*{hasNew ? (*/}
+              {/*  <Avatar icon={<AlertTwoTone />} />*/}
+              {/*) : (*/}
+              {/*  <Avatar icon={<UserOutlined />} />*/}
+              {/*)}*/}
+              <Popover
+                content={
+                  <div
+                    onMouseEnter={() => {
+                      if (hasNew) {
+                        cleanHasNew();
+                        setHasNew(0);
+                      }
+                    }}
+                    style={{ fontSize: '18px', fontWeight: 'bold',color: 'red' }}
+                  >
+                    {notificationMessage()} {/* Display the notification message */}
+                  </div>}
+                title={<span style={{ color: 'blue' }}>Notification</span>}
+                trigger="hover"
+                visible={hasNew}
+                placement="bottom"
+                arrow={{
+                  pointAtCenter: true,
+                }}
+                offset={[10,20]}
+              >
+                <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
+                  <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />
+                </Badge>
+              </Popover>
             </Dropdown>
           ) : (
             <Button
