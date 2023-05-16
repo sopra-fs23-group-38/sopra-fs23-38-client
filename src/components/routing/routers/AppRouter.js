@@ -1,3 +1,4 @@
+import React from 'react';
 import {BrowserRouter, Redirect, Route, Switch} from "react-router-dom";
 import {LoginGuard} from "components/routing/routeProtectors/LoginGuard";
 import {RegisterGuard} from "components/routing/routeProtectors/RegisterGuard";
@@ -52,8 +53,6 @@ const AppRouter = () => {
                   <QuestionDetail/>
               </QuestionGuard>
           </Route>
-
-
           <Route exact path="/login">
           <LoginGuard>
             <Login />
@@ -64,7 +63,7 @@ const AppRouter = () => {
             <Register />
           </RegisterGuard>
         </Route>
-        <Route exact path="/index">
+        <Route exact path="/index/:id" component={Index} >
           <IndexGuard>
             <Index />
           </IndexGuard>
@@ -74,7 +73,7 @@ const AppRouter = () => {
             <Chat />
           </ChatGuard>
         </Route>
-        <Route exact path="/center">
+        <Route exact path="/center/:id" component={Center}>
           <CenterGuard>
             <Center />
           </CenterGuard>
@@ -85,7 +84,7 @@ const AppRouter = () => {
              </SearchGuard>
           </Route>
         <Route exact path="/">
-          <Redirect to="/index"/>
+          <Redirect to="/index/1"/>
         </Route>
       </Switch>
     </BrowserRouter>
