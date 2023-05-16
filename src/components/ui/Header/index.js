@@ -55,15 +55,14 @@ const Header = () => {
 
   const clickLogout = () => {
     // Cookies.remove('token');
+    history.push("/Login");
     Cookies.remove("token");
-    window.location.href ="/Login";
-
 
     window.location.reload();
   };
   const clickCenter = () => {
     cleanHasNew();
-    setHasNew(0);
+    setHasNew(false);
     // history.push("/Center");
     const cookie = Cookies.get("token", "");
     // history.push(`/index/${page}`);
@@ -94,40 +93,36 @@ const Header = () => {
     },
   ];
 
-  const notificationMessage= ()=> {
-    if (hasNew === 1) {
-      return 'You have 1 new notification.';
-    } else {
-      return `You have ${hasNew} new notifications.`;
-    }
-  }
-
   return (
-    <div className={styles.header}>
-      <Row>
-        <Col span={2} offset={2}>
-          <div className={styles.log}>
-            <span className={styles.logo}>Group38</span>
-          </div>
-        </Col>
-        <Col span={14}>
-          <Button
-            onClick={() => handleClick("/")}
-            type={"text"}
-            style={{ color: "#000", fontSize: "16px" }}
-          >
-            Home
-          </Button>
-
-          {/*<Menu className={styles.menu} mode={"horizontal"} items={getMenu()} onClick={handleClick} />*/}
-        </Col>
-        <Col span={4} offset={2}>
-          <Button
-            style={{ marginRight: "16px" }}
-            shape="circle"
-            icon={<SearchOutlined />}
-            onClick={handleSearch}
-          />
+      <div className={styles.header}>
+        <Row>
+          <Col span={4}>
+            <div className={styles.log}>
+              <span className={styles.logo}>UZH IFI Forum</span>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div style={{ textAlign: "center" }}>
+    <span style={{ fontSize: "20px", fontWeight: "bold", color: "#1890ff" }}>
+      An online Q&A platform for UZH IFI’s study and life!
+    </span>
+            </div>
+          </Col>
+          <Col span={8}>
+            <Row justify="end">
+              <Button
+                  style={{
+                    marginRight: "16px",
+                    backgroundColor: "#1890ff",
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: "16px",
+                    padding: "5px 10px"
+                  }}
+                  shape="circle"
+                  icon={<SearchOutlined />}
+                  onClick={handleSearch}
+              />
           {isLogin ? (
             <Dropdown
               menu={{
@@ -137,39 +132,12 @@ const Header = () => {
               arrow={{
                 pointAtCenter: true,
               }}
-              offset={[50, 0]}
             >
-              {/*{hasNew ? (*/}
-              {/*  <Avatar icon={<AlertTwoTone />} />*/}
-              {/*) : (*/}
-              {/*  <Avatar icon={<UserOutlined />} />*/}
-              {/*)}*/}
-              <Popover
-                content={
-                  <div
-                    onMouseEnter={() => {
-                      if (hasNew) {
-                        cleanHasNew();
-                        setHasNew(0);
-                      }
-                    }}
-                    style={{ fontSize: '18px', fontWeight: 'bold',color: 'red' }}
-                  >
-                    {notificationMessage()} {/* Display the notification message */}
-                  </div>}
-                title={<span style={{ color: 'blue' }}>Notification</span>}
-                trigger="hover"
-                visible={hasNew}
-                placement="bottom"
-                arrow={{
-                  pointAtCenter: true,
-                }}
-                offset={[10,20]}
-              >
-                <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
-                  <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />
-                </Badge>
-              </Popover>
+              {hasNew ? (
+                <Avatar icon={<AlertTwoTone />} />
+              ) : (
+                <Avatar icon={<UserOutlined />} />
+              )}
             </Dropdown>
           ) : (
             <Button
@@ -180,6 +148,7 @@ const Header = () => {
               Login / Register
             </Button>
           )}
+            </Row>
         </Col>
       </Row>
     </div>
