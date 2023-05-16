@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "styles/index.scss";
-import App from "App";
+import App from "./App";
 
 
 import { Provider } from 'react-redux';
 // import { createStore } from 'redux';
 import store from './models/reducers';
-import Layout from "components/views/Layout.js";
+import ILayout from "./components/views/Layout.js";
 // const store = createStore(rootReducer);
 /**
  * This is the entry point of your React application where the root element is in the public/index.html.
@@ -17,8 +17,8 @@ import Layout from "components/views/Layout.js";
  */
 ReactDOM.render(
     <Provider store={store}>
-        <Layout>
-    <App />
-     </Layout>
+        <ILayout>
+          <App />
+     </ILayout>
      </Provider>,
     document.getElementById("root"));

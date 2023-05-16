@@ -35,6 +35,8 @@ function Register() {
         }
     };
 
+    const emailValidationPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
     return (
         <div className={style.container}>
             <div className={style.main}>
@@ -78,12 +80,17 @@ function Register() {
                         <Input.Password style={{ width: '240px' }} size={'large'} placeholder={'Repeat Password'} />
                     </Form.Item>
 
-                    <Form.Item name="email">
+                    <Form.Item
+                      name="email"
+                      rules={[
+                          { required: true, message: 'Please input your email.' },
+                          { pattern: emailValidationPattern, message: 'Please enter a valid email address.' }
+                      ]}
+                    >
                         <Input
-                            style={{ width: '240px' }}
-                            size={'large'}
-                            placeholder={'Enter E-mail'}
-                            rules={[{ required: true, message: 'please input your Email.' }]}
+                          style={{ width: '240px' }}
+                          size="large"
+                          placeholder="Enter email"
                         />
                     </Form.Item>
 

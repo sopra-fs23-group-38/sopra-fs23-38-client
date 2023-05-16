@@ -1,11 +1,9 @@
-import { Button, Card, Col, Form, Input, Row } from "antd";
+import { Button, Card, Col, Form, Input, Row, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { search } from "helpers/api/search";
 import styles from "styles/views/search.module.scss";
-
-import { Select } from 'antd';
 const { Option } = Select;
 
 const Search = () => {

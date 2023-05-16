@@ -21,7 +21,7 @@ function Login() {
         Cookies.set("token", response.token);
         dispatch(handleLogin(values));
 
-        history.push('index/')
+        history.push('index/1')
         window.location.reload();
         // history.push('/').then(() => {
         //   window.location.reload();
