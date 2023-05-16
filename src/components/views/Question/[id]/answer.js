@@ -7,7 +7,7 @@ import axios from "axios";
 import {useHistory,useParams} from "react-router-dom";
 import Cookies from "js-cookie";
 const requests = axios.create({
-    baseURL: "https://sopra-fs23-group-38-server.oa.r.appspot.com/",
+    baseURL: "http://localhost:8080",//"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
     withCredentials: true, // Change to your desired host and port
 });
 requests.interceptors.request.use(

@@ -5,7 +5,7 @@ import {deleteQuestion, getQuestionsAskedBy, updateQuestion} from "helpers/api/q
 import {deleteAnswer, getAnswersWriteBy, updateAnswer} from "helpers/api/answer";
 import { deleteComment, getCommentsBy, updateComment } from "helpers/api/comment";
 import {listNotifications} from "helpers/api//notification";
-import {useHistory} from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
 var stompClient = null;
@@ -18,7 +18,11 @@ const Center = () => {
     const [usermyselfId, setusermyselfId] = useState(null)
     const history = useHistory();
 
+
     useEffect(() => {
+        const newSocket = new SockJS("http://localhost:8080/my-websocket");
+        // let stompClient;
+        stompClient = over(newSocket);
         setuserId(parseInt(window.location.href.split('/').pop().substring(1)) / 3)
         setusermyselfId(JSON.parse(localStorage.getItem("user")).id)
 
@@ -35,9 +39,7 @@ const Center = () => {
             setComments(response)
         })
         if (JSON.parse(localStorage.getItem("user")).id ===parseInt(window.location.href.split('/').pop().substring(1)) / 3){
-            const newSocket = new SockJS("http://localhost:8080/my-websocket");
-            let stompClient;
-            stompClient = over(newSocket);
+
 
             const user = JSON.parse(localStorage.getItem("user"));
             const toUserId = user.id;
@@ -72,6 +74,7 @@ const Center = () => {
     const [question, setQuestion] = useState({})
 
     const deleteQuestionById = (id) => {
+
         deleteQuestion({
             questionId: id
         }).then(response => {
@@ -79,7 +82,10 @@ const Center = () => {
                 message.info('Success')
                 setTimeout(() => {
                     stompClient.send("/app/getHowManyQuestions/", {});
-                    stompClient.send("/app/getAllQuestions/" + 1, {});
+                    stompClient.send("/app/getAllQuestions/" + 1+"/", {});
+                    console.log(id)
+                    stompClient.send("/app/getQuestionById", {}, JSON.stringify({ ID: id }));
+                    stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: id }));
 
                 }, 500);
                 setQuestions(prevState => {
@@ -104,11 +110,14 @@ const Center = () => {
         }).then(response => {
             if (response.success && response.success === 'true') {
                 message.info('Success');
+                if (stompClient && stompClient.connected ) { // 确保WebSocket连接已建立
                 setTimeout(() => {
                     stompClient.send("/app/getHowManyQuestions/", {});
-                    stompClient.send("/app/getAllQuestions/" + 1, {});
+                    stompClient.send("/app/getAllQuestions/" + 1+"/", {});
+                    stompClient.send("/app/getQuestionById", {}, JSON.stringify({ ID: question.questionId }));
+                    stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: question.questionId }));
+                }, 500);}
 
-                }, 500);
                 setEditQuestionOpen(false);
                 setQuestions(prevState => {
                     const updatedQuestions = prevState.map((item) => {
@@ -135,8 +144,9 @@ const Center = () => {
             if (response.success && response.success === 'true') {
                 setTimeout(() => {
                     // eslint-disable-next-line no-unused-expressions
-                    stompClient.send("/app/getQuestionById", {}, JSON.stringify({ ID: answer.questionId }));
                     stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: answer.questionId }));
+                    stompClient.send("/app/getAnswerById", {}, JSON.stringify({ ID: id }));
+                    stompClient.send("/app/getAllComments", {}, JSON.stringify({ ID: id }));
                 }, 500); // 延迟1秒
                 message.info('Success')
                 setAnswers(prevState => {
@@ -161,8 +171,10 @@ const Center = () => {
         }).then(response => {
             if (response.success && response.success === 'true') {
                 setTimeout(() => {
-                    stompClient.send("/app/getQuestionById", {}, JSON.stringify({ ID: answer.questionId }));
+                    // eslint-disable-next-line no-unused-expressions
                     stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: answer.questionId }));
+                    stompClient.send("/app/getAnswerById", {}, JSON.stringify({ ID: answer.answerId }));
+                    stompClient.send("/app/getAllComments", {}, JSON.stringify({ ID: answer.answerId }));
                 }, 500); // 延迟1秒
                 message.info('Success');
                 setEditAnswerOpen(false);
@@ -191,6 +203,13 @@ const Center = () => {
         }).then(response => {
             if (response.success && response.success === 'true') {
                 message.info('Success')
+                setTimeout(() => {
+                    console.log(answer)
+                    // eslint-disable-next-line no-unused-expressions
+                    // stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: answer.questionId }));
+                    stompClient.send("/app/getAnswerById", {}, JSON.stringify({ ID: comment.clickId  }));
+                    stompClient.send("/app/getAllComments", {}, JSON.stringify({ ID: comment.clickId  }));
+                }, 500); // 延迟1秒
                 setComments(prevState => {
                     return prevState.filter((item) => {
                         if (item.commentId !== id) {
@@ -212,6 +231,13 @@ const Center = () => {
         }).then(response => {
             if (response.success && response.success === 'true') {
                 message.info('Success');
+                setTimeout(() => {
+                    // eslint-disable-next-line no-unused-expressions
+                    console.log(comment)
+                    // stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: answer.questionId }));
+                    stompClient.send("/app/getAnswerById", {}, JSON.stringify({ ID: comment.clickId }));
+                    stompClient.send("/app/getAllComments", {}, JSON.stringify({ ID: comment.clickId }));
+                }, 500); // 延迟1秒
                 setEditCommentOpen(false);
                 setComments(prevState => {
                     const updatedComments = prevState.map((item) => {
@@ -230,41 +256,109 @@ const Center = () => {
 
     const items = [
         {
-            key: '1',
+            key: "1",
             label: (
-                <Button style={{ backgroundColor: '#6F3BF5', width: '200px' }} type={"primary"}>Your Questions</Button>
+              <Button
+                style={{ backgroundColor: "#6F3BF5", width: "200px" }}
+                type={"primary"}
+              >
+                  Your Questions
+              </Button>
             ),
             children: (
-                <Card bodyStyle={{ padding: '64px 5%'}}>
-                    { questions && questions.length === 0
-                        ? <span>You don't seem to have asked any questions yet.</span>
-                        : <div>
-                            { questions.map((item, index) => {
-                                return <Card key={index} style={{ marginTop: '8px' }}>
-                                    <div style={{ display: 'flex' }}>
-                                        <div>
-                                            { item.title }
-                                        </div>
+              <Card bodyStyle={{ padding: "64px 5%", textAlign: "left" }}>
+                  {questions && questions.length === 0 ? (
+                    <span>You don't seem to have asked any questions yet.</span>
+                  ) : (
+                    <div>
+                        {questions.map((item, index) => {
+                            return (
+                              <Card
+                                key={index}
+                                style={{ marginTop: "8px", position: "relative" }}
+                              >
+                                  {/* Make the title bold and display it above the Card */}
+                                  <div>
+                      <span
+                        style={{
+                            fontWeight: "bold",
+                            fontFamily: "Arial, sans-serif",
+                        }}
+                      >
+                        Title:{" "}
+                          <Link
+                            to={`/question/${item.questionId}`}
+                            style={{ color: "inherit", textDecoration: "none" }}
+                          >
+                          {item.title}
+                        </Link>
+                      </span>
+                                      <br />
+                                      <span style={{ fontFamily: "Arial, sans-serif" }}>
+                        Answers: {item.answer_count || 0}
+                      </span>
+                                      <span
+                                        style={{
+                                            marginLeft: "16px",
+                                            fontFamily: "Arial, sans-serif",
+                                        }}
+                                      >
+                        Last Updated:{" "}
+                                          {item.lastChangeTime
+                                            ? new Date(item.lastChangeTime).toLocaleDateString(
+                                              undefined,
+                                              {
+                                                  year: "numeric",
+                                                  month: "numeric",
+                                                  day: "numeric",
+                                              }
+                                            )
+                                            : "N/A"}
+                      </span>
+                                  </div>
 
-                                        <div style={{ position: 'absolute', right: '8px' }}>
-                                            <Button onClick={() => {
-                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                setEditQuestionOpen(true)
-                                                setQuestion(item)}
-                                            }} style={{ backgroundColor: '#6F3BF5', marginRight: '8px', marginLeft: '8px'}} type={"primary"}>Edit</Button>
-                                            <Button  onClick={() => {
-                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                    deleteQuestionById(item.questionId)}
-                                                }
-                                            }
-                                               type={"primary"} danger>Delete</Button>
-                                        </div>
-                                    </div>
-                                </Card>
-                            }) }
-                        </div>}
-                </Card>
-            )
+                                  <div
+                                    style={{
+                                        position: "absolute",
+                                        top: "50%",
+                                        right: "8px",
+                                        transform: "translateY(-50%)",
+                                    }}
+                                  >
+                                      <Button
+                                        onClick={() => {
+                                            if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                setEditQuestionOpen(true);
+                                                setQuestion(item);}
+                                        }}
+                                        style={{
+                                            backgroundColor: "#6F3BF5",
+                                            marginRight: "8px",
+                                            marginLeft: "8px",
+                                        }}
+                                        type={"primary"}
+                                      >
+                                          Edit
+                                      </Button>
+                                      <Button
+
+                                        onClick={() => {
+                                            if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                deleteQuestionById(item.questionId)}
+                                        }}
+                                        type={"primary"}
+                                        danger
+                                      >
+                                          Delete
+                                      </Button>
+                                  </div>
+                              </Card>
+                            );
+                        })}
+                    </div>
+                  )}
+              </Card>
+            ),
         },
         {
             key: '2',
@@ -272,30 +366,69 @@ const Center = () => {
                 <Button style={{ backgroundColor: '#6F3BF5', width: '200px' }} type={"primary"}>Your Answers</Button>
             ),
             children: (
-                <Card bodyStyle={{ padding: '64px 5%'}}>
+                <Card bodyStyle={{ padding: '64px 5%', textAlign: "left" }}>
                     { answers && answers.length === 0
                         ? <span>You don't seem to have asked any answer yet.</span>
                         : <div>
                             { answers.map((item, index) => {
-                                return <Card key={index} style={{ marginTop: '8px' }}>
-                                    <div style={{ display: 'flex' }}>
-                                        <div>
-                                            { item.content }
-                                        </div>
+                                return <Card
+                                  key={index}
+                                  style={{ marginTop: "8px", position: "relative" }}
+                                >
+                                    <div>
+                      <span
+                        style={{
+                            fontWeight: "bold",
+                            fontFamily: "Arial, sans-serif",
+                        }}
+                      >
+                        Title: {item.questionTitle}
+                      </span>
+                                        <br />
+                                        <span>Your Answer: {item.content}</span>
+                                        <br />
+                                        <span style={{ fontFamily: "Arial, sans-serif" }}>
+                        Last Updated:{" "}
+                                            {item.change_time
+                                              ? new Date(item.change_time).toLocaleDateString(
+                                                undefined,
+                                                {
+                                                    year: "numeric",
+                                                    month: "numeric",
+                                                    day: "numeric",
+                                                }
+                                              )
+                                              : "N/A"}
+                      </span>
+                                        <span
+                                          style={{
+                                              marginLeft: "16px",
+                                              fontFamily: "Arial, sans-serif",
+                                          }}
+                                        >
+                        Vote: {item.vote_count || 0}
+                      </span>
+                                    </div>
 
-                                        <div style={{ position: 'absolute', right: '8px' }}>
-                                            <Button onClick={() => {
-                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                    <div
+                                      style={{
+                                          position: "absolute",
+                                          top: "50%",
+                                          right: "8px",
+                                          transform: "translateY(-50%)",
+                                      }}
+                                    >
+                                        <Button onClick={() => {
+                                            if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
                                                 console.log(item)
                                                 setEditAnswerOpen(true)
                                                 setAnswer(item)}
-                                            }} style={{ backgroundColor: '#6F3BF5', marginRight: '8px', marginLeft: '8px'}} type={"primary"}>Edit</Button>
-                                            <Button onClick={() =>
-                                            {if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                deleteAnswerById(item.answerId)}
-                                            }
-                                            } type={"primary"} danger>Delete</Button>
-                                        </div>
+                                        }} style={{ backgroundColor: '#6F3BF5', marginRight: '8px', marginLeft: '8px'}} type={"primary"}>Edit</Button>
+                                        <Button onClick={() =>
+                                        {if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                            deleteAnswerById(item.answerId)}
+                                        }
+                                        } type={"primary"} danger>Delete</Button>
                                     </div>
                                 </Card>
                             }) }
@@ -314,21 +447,19 @@ const Center = () => {
                         ? <span>You don't seem to have asked any comment yet.</span>
                         : <div>
                             { comments.map((item, index) => {
-                                return <Card key={index} style={{ marginTop: '8px' }}>
-                                    <div style={{ display: 'flex' }}>
-                                        <div>
-                                            { item.commentContent }
-                                        </div>
+                                return <Card key={index} style={{ marginTop: "8px" }}>
+                                    <div style={{ display: "flex" }}>
+                                        <div>{item.commentContent}</div>
 
-                                        <div style={{ position: 'absolute', right: '8px' }}>
+                                        <div style={{ position: "absolute", right: "8px" }}>
                                             <Button onClick={() => {
                                                 if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                setEditCommentOpen(true)
-                                                setComment(item)}
+                                                    setEditCommentOpen(true)
+                                                    setComment(item)}
                                             }} style={{ backgroundColor: '#6F3BF5', marginRight: '8px', marginLeft: '8px'}} type={"primary"}>Edit</Button>
                                             <Button onClick={() => {
                                                 if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                deleteCommentById(item.commentId)}}} type={"primary"} danger>Delete</Button>
+                                                    deleteCommentById(item.commentId)}}} type={"primary"} danger>Delete</Button>
                                         </div>
                                     </div>
                                 </Card>
@@ -355,7 +486,6 @@ const Center = () => {
                                         </div>
 
                                         <div style={{ position: 'absolute', right: '8px' }}>
-
                                             <Button onClick={() => history.push(item.url)} type={"primary"}>skip</Button>
                                         </div>
                                     </div>
@@ -377,74 +507,126 @@ const Center = () => {
                 pathname: "/chat", state: { fromUserId: JSON.parse(localStorage.getItem("user")).id, toUserId: parseInt(window.location.href.split('/').pop().substring(1)) / 3 }
             })}}} type={"primary"}>chat</Button>
 
-            <Tabs tabPosition={'left'} items={items}/>
-            <Modal destroyOnClose={true} open={editQuestionOpen} onCancel={() => {
-                setEditQuestionOpen(false)
-                setQuestion({})
-            }} title={"Edit Question"} footer={null}>
+            <Tabs tabPosition={"left"} items={items} />
+            <Modal
+              destroyOnClose={true}
+              open={editQuestionOpen}
+              onCancel={() => {
+                  setEditQuestionOpen(false);
+                  setQuestion({});
+              }}
+              title={"Edit Question"}
+              footer={null}
+            >
                 <Form onFinish={editQuestion}>
-                    <Form.Item initialValue={question.title} name={"title"} rules={[{ required: true, message: "please input your question." }]}>
-                        <Input placeholder={"Input Title"}/>
+                    <Form.Item
+                      initialValue={question.title}
+                      name={"title"}
+                      rules={[{ required: true, message: "please input your question." }]}
+                    >
+                        <Input placeholder={"Input Title"} />
                     </Form.Item>
 
-                    <Form.Item initialValue={question.detail} name={"question"} rules={[{ required: true, message: "please input your question." }]}>
-                        <Input placeholder={"Input Question"}/>
+                    <Form.Item
+                      initialValue={question.detail}
+                      name={"question"}
+                      rules={[{ required: true, message: "please input your question." }]}
+                    >
+                        <Input placeholder={"Input Question"} />
                     </Form.Item>
 
-                    <div style={{ position: 'relative', height: '32px' }}>
-                        <Form.Item style={{ position: 'absolute', right: '0' }}>
-                            <Button htmlType={"submit"} type={"primary"}>Ok</Button>
+                    <div style={{ position: "relative", height: "32px" }}>
+                        <Form.Item style={{ position: "absolute", right: "0" }}>
+                            <Button htmlType={"submit"} type={"primary"}>
+                                Ok
+                            </Button>
                         </Form.Item>
                     </div>
                 </Form>
             </Modal>
 
-            <Modal destroyOnClose={true} open={editCommentOpen} onCancel={() => {
-                setEditCommentOpen(false)
-                setComment({})
-            }} title={"Edit Comment"} footer={null}>
+            <Modal
+              destroyOnClose={true}
+              open={editCommentOpen}
+              onCancel={() => {
+                  setEditCommentOpen(false);
+                  setComment({});
+              }}
+              title={"Edit Comment"}
+              footer={null}
+            >
                 <Form onFinish={editQuestion}>
-                    <Form.Item initialValue={question.title} name={"comment"} rules={[{ required: true, message: "please input your comment." }]}>
-                        <Input placeholder={"Input Comment"}/>
+                    <Form.Item
+                      initialValue={question.title}
+                      name={"comment"}
+                      rules={[{ required: true, message: "please input your comment." }]}
+                    >
+                        <Input placeholder={"Input Comment"} />
                     </Form.Item>
 
-                    <div style={{ position: 'relative', height: '32px' }}>
-                        <Form.Item style={{ position: 'absolute', right: '0' }}>
-                            <Button htmlType={"submit"} type={"primary"}>Ok</Button>
+                    <div style={{ position: "relative", height: "32px" }}>
+                        <Form.Item style={{ position: "absolute", right: "0" }}>
+                            <Button htmlType={"submit"} type={"primary"}>
+                                Ok
+                            </Button>
                         </Form.Item>
                     </div>
                 </Form>
             </Modal>
 
-            <Modal destroyOnClose={true} open={editCommentOpen} onCancel={() => {
-                setEditCommentOpen(false)
-                setComment({})
-            }} title={"Edit Comment"} footer={null}>
+            <Modal
+              destroyOnClose={true}
+              open={editCommentOpen}
+              onCancel={() => {
+                  setEditCommentOpen(false);
+                  setComment({});
+              }}
+              title={"Edit Comment"}
+              footer={null}
+            >
                 <Form onFinish={editComment}>
-                    <Form.Item initialValue={comment.commentContent} name={"comment"} rules={[{ required: true, message: "please input your comment." }]}>
-                        <Input placeholder={"Input Comment"}/>
+                    <Form.Item
+                      initialValue={comment.commentContent}
+                      name={"comment"}
+                      rules={[{ required: true, message: "please input your comment." }]}
+                    >
+                        <Input placeholder={"Input Comment"} />
                     </Form.Item>
 
-                    <div style={{ position: 'relative', height: '32px' }}>
-                        <Form.Item style={{ position: 'absolute', right: '0' }}>
-                            <Button htmlType={"submit"} type={"primary"}>Ok</Button>
+                    <div style={{ position: "relative", height: "32px" }}>
+                        <Form.Item style={{ position: "absolute", right: "0" }}>
+                            <Button htmlType={"submit"} type={"primary"}>
+                                Ok
+                            </Button>
                         </Form.Item>
                     </div>
                 </Form>
             </Modal>
 
-            <Modal destroyOnClose={true} open={editAnswerOpen} onCancel={() => {
-                setEditAnswerOpen(false)
-                setAnswer({})
-            }} title={"Edit Answer"} footer={null}>
+            <Modal
+              destroyOnClose={true}
+              open={editAnswerOpen}
+              onCancel={() => {
+                  setEditAnswerOpen(false);
+                  setAnswer({});
+              }}
+              title={"Edit Answer"}
+              footer={null}
+            >
                 <Form onFinish={editAnswer}>
-                    <Form.Item initialValue={answer.answerContent} name={"answer"} rules={[{ required: true, message: "please input your answer." }]}>
-                        <Input placeholder={"Input Answer"}/>
+                    <Form.Item
+                      initialValue={answer.answerContent}
+                      name={"answer"}
+                      rules={[{ required: true, message: "please input your answer." }]}
+                    >
+                        <Input placeholder={"Input Answer"} />
                     </Form.Item>
 
-                    <div style={{ position: 'relative', height: '32px' }}>
-                        <Form.Item style={{ position: 'absolute', right: '0' }}>
-                            <Button htmlType={"submit"} type={"primary"}>Ok</Button>
+                    <div style={{ position: "relative", height: "32px" }}>
+                        <Form.Item style={{ position: "absolute", right: "0" }}>
+                            <Button htmlType={"submit"} type={"primary"}>
+                                Ok
+                            </Button>
                         </Form.Item>
                     </div>
                 </Form>

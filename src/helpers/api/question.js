@@ -23,7 +23,7 @@ export function evaluateQuestion(params) {
 }
 //
 export function newQuestion(data) {
-    return requests.post(`/question/createQuestion?description=${data.detail}&title=${data.title}`)
+    return requests.post(`/question/createQuestion?description=${data.detail}&title=${data.title}&tag=${data.tag}`)
 }
 //
 export function getQuestionsAskedBy(params) {

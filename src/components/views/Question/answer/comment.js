@@ -1,13 +1,14 @@
 
 import { List, Avatar } from 'antd';
 
-const CommentListItem = ({ item, index, actions }) => {
+const CommentListItem = ({ item, actions }) => {
+    console.log('Rendering item with ID: ', item.id);
     return (
         <List>
-            <List.Item key={item.id + '' + index} actions={actions}>
+            <List.Item key={item.id} actions={actions}>
                 <List.Item.Meta
-                    avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`} />}
-                    title={<a href="https://ant.design">{item.author}</a>}
+                    avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${item.id}`} />}
+                    title={item.author}
                     description={item.content}
                 />
             </List.Item>
