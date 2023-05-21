@@ -3,10 +3,7 @@ import requests from "./requests_utils";
 export function register(data) {
     const url = `/register?email=${data.email}&password=${data.password}&username=${data.username}`;
     return requests.post(url);
-    // return requests.post("/usr/register", data);
-    // return requests.post("/usr/register", {
-    //     params: data
-    // });
+
 }
 
 export function login(data) {
