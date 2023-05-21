@@ -325,32 +325,35 @@ const Center = () => {
                                         transform: "translateY(-50%)",
                                     }}
                                   >
-                                      <Button
-                                        onClick={() => {
-                                            if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                setEditQuestionOpen(true);
-                                                setQuestion(item);}
-                                        }}
-                                        style={{
-                                            backgroundColor: "#6F3BF5",
-                                            marginRight: "8px",
-                                            marginLeft: "8px",
-                                        }}
-                                        type={"primary"}
-                                      >
-                                          Edit
-                                      </Button>
-                                      <Button
-
-                                        onClick={() => {
-                                            if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                deleteQuestionById(item.questionId)}
-                                        }}
-                                        type={"primary"}
-                                        danger
-                                      >
-                                          Delete
-                                      </Button>
+                                        <Button
+                                            onClick={() => {
+                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                    setEditQuestionOpen(true);
+                                                    setQuestion(item);
+                                                }
+                                            }}
+                                            style={{
+                                                backgroundColor: (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) ? "#6F3BF5" : "#ccc", // Change color based on condition
+                                                marginRight: "8px",
+                                                marginLeft: "8px",
+                                            }}
+                                            type={"primary"}
+                                            disabled={!(parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id)} // Disable button based on condition
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                    deleteQuestionById(item.questionId)
+                                                }
+                                            }}
+                                            type={"primary"}
+                                            danger
+                                            disabled={!(parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id)} // Disable button based on condition
+                                        >
+                                            Delete
+                                        </Button>
                                   </div>
                               </Card>
                             );
@@ -367,71 +370,91 @@ const Center = () => {
             ),
             children: (
                 <Card bodyStyle={{ padding: '64px 5%', textAlign: "left" }}>
-                    { answers && answers.length === 0
+                    {answers && answers.length === 0
                         ? <span>You don't seem to have asked any answer yet.</span>
                         : <div>
-                            { answers.map((item, index) => {
+                            {answers.map((item, index) => {
                                 return <Card
-                                  key={index}
-                                  style={{ marginTop: "8px", position: "relative" }}
+                                    key={index}
+                                    style={{ marginTop: "8px", position: "relative" }}
                                 >
                                     <div>
-                      <span
-                        style={{
-                            fontWeight: "bold",
-                            fontFamily: "Arial, sans-serif",
-                        }}
-                      >
-                        Title: {item.questionTitle}
-                      </span>
+                                        <span
+                                            style={{
+                                                fontWeight: "bold",
+                                                fontFamily: "Arial, sans-serif",
+                                            }}
+                                        >
+                                            Question Title: {item.questionTitle}
+                                        </span>
                                         <br />
                                         <span>Your Answer: {item.content}</span>
                                         <br />
                                         <span style={{ fontFamily: "Arial, sans-serif" }}>
-                        Last Updated:{" "}
+                                            Last Updated:{" "}
                                             {item.change_time
-                                              ? new Date(item.change_time).toLocaleDateString(
-                                                undefined,
-                                                {
-                                                    year: "numeric",
-                                                    month: "numeric",
-                                                    day: "numeric",
-                                                }
-                                              )
-                                              : "N/A"}
-                      </span>
+                                                ? new Date(item.change_time).toLocaleDateString(
+                                                    undefined,
+                                                    {
+                                                        year: "numeric",
+                                                        month: "numeric",
+                                                        day: "numeric",
+                                                    }
+                                                )
+                                                : "N/A"}
+                                        </span>
                                         <span
-                                          style={{
-                                              marginLeft: "16px",
-                                              fontFamily: "Arial, sans-serif",
-                                          }}
+                                            style={{
+                                                marginLeft: "16px",
+                                                fontFamily: "Arial, sans-serif",
+                                            }}
                                         >
-                        Vote: {item.vote_count || 0}
-                      </span>
+                                            Vote: {item.vote_count || 0}
+                                        </span>
                                     </div>
 
                                     <div
-                                      style={{
-                                          position: "absolute",
-                                          top: "50%",
-                                          right: "8px",
-                                          transform: "translateY(-50%)",
-                                      }}
+                                        style={{
+                                            position: "absolute",
+                                            top: "50%",
+                                            right: "8px",
+                                            transform: "translateY(-50%)",
+                                        }}
                                     >
-                                        <Button onClick={() => {
-                                            if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                console.log(item)
-                                                setEditAnswerOpen(true)
-                                                setAnswer(item)}
-                                        }} style={{ backgroundColor: '#6F3BF5', marginRight: '8px', marginLeft: '8px'}} type={"primary"}>Edit</Button>
-                                        <Button onClick={() =>
-                                        {if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                            deleteAnswerById(item.answerId)}
-                                        }
-                                        } type={"primary"} danger>Delete</Button>
+                                        <Button
+                                            onClick={() => {
+                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                    console.log(item)
+                                                    setEditAnswerOpen(true)
+                                                    setAnswer(item)
+                                                }
+                                            }}
+                                            style={{
+                                                backgroundColor: (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) ? "#6F3BF5" : "#ccc", // Change color based on condition
+                                                marginRight: '8px',
+                                                marginLeft: '8px',
+                                            }}
+                                            type={"primary"}
+                                            disabled={!(parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id)} // Disable button based on condition
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                    deleteAnswerById(item.answerId)
+                                                }
+                                            }}
+                                            type={"primary"}
+                                            danger
+                                            disabled={!(parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id)} // Disable button based on condition
+                                        >
+                                            Delete
+                                        </Button>
+
                                     </div>
                                 </Card>
-                            }) }
+                            })}
                         </div>}
                 </Card>
             )
@@ -447,21 +470,72 @@ const Center = () => {
                         ? <span>You don't seem to have asked any comment yet.</span>
                         : <div>
                             { comments.map((item, index) => {
-                                return <Card key={index} style={{ marginTop: "8px" }}>
-                                    <div style={{ display: "flex" }}>
-                                        <div>{item.commentContent}</div>
+                                console.log(item);
+                                return <Card
+                                    key={index}
+                                    style={{ marginTop: "8px", position: "relative" }}
+                                >
+
+                                    <div style={{ textAlign: "left" }}>
+                                        <span
+                                            style={{
+                                                fontWeight: "bold",
+                                                fontFamily: "Arial, sans-serif",
+                                            }}
+                                        >
+                                            Answer: {item.comment_ans}
+                                        </span>
+                                        <br />
+                                        <span>Your Comment: {item.commentContent}</span>
+                                        <br />
+                                        <span style={{ fontFamily: "Arial, sans-serif" }}>
+                                            Last Updated:{" "}
+                                            {item.commentTime
+                                                ? new Date(item.commentTime).toLocaleDateString(
+                                                    undefined,
+                                                    {
+                                                        year: "numeric",
+                                                        month: "numeric",
+                                                        day: "numeric",
+                                                    }
+                                                )
+                                                : "N/A"}
+                                        </span>
+                                    </div>
 
                                         <div style={{ position: "absolute", right: "8px" }}>
-                                            <Button onClick={() => {
-                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                    setEditCommentOpen(true)
-                                                    setComment(item)}
-                                            }} style={{ backgroundColor: '#6F3BF5', marginRight: '8px', marginLeft: '8px'}} type={"primary"}>Edit</Button>
-                                            <Button onClick={() => {
-                                                if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
-                                                    deleteCommentById(item.commentId)}}} type={"primary"} danger>Delete</Button>
+                                            <Button
+                                                onClick={() => {
+                                                    if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                        setEditCommentOpen(true)
+                                                        setComment(item)
+                                                    }
+                                                }}
+                                                style={{
+                                                    backgroundColor: (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) ? "#6F3BF5" : "#ccc", // Change color based on condition
+                                                    marginRight: '8px',
+                                                    marginLeft: '8px',
+                                                }}
+                                                type={"primary"}
+                                                disabled={!(parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id)} // Disable button based on condition
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                onClick={() => {
+                                                    if (parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id) {
+                                                        deleteCommentById(item.commentId)
+                                                    }
+                                                }}
+                                                type={"primary"}
+                                                danger
+                                                disabled={!(parseInt(window.location.href.split('/').pop().substring(1)) / 3 === JSON.parse(localStorage.getItem("user")).id)} // Disable button based on condition
+                                            >
+                                                Delete
+                                            </Button>
+
                                         </div>
-                                    </div>
+
                                 </Card>
                             }) }
                         </div>}
