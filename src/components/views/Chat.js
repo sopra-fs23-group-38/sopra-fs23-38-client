@@ -12,7 +12,7 @@ const Chat = () => {
     const [form] = Form.useForm();
     const [messages, setMessages] = useState([]);
     const [user, setUser] = useState({});
-    const [socket, setSocket] = useState(null);
+    const [setSocket] = useState(null);
     let { fromUserId, toUserId } = location.state || {};
     if (!fromUserId){
         const urlParams = new URLSearchParams(window.location.search);

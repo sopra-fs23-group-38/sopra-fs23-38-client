@@ -135,6 +135,9 @@ const Search = () => {
                   </div>
                 );
               }
+              else {
+                  return null;
+              }
             })
           )}
         </Form>
