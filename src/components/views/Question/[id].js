@@ -3,7 +3,7 @@ import { useHistory, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import moment from "moment/moment";
 import { Button, Card, Col, Divider, Image, message, Pagination, Row, Dropdown, Menu, Space} from "antd";
-import { CommentOutlined, LikeTwoTone, TranslationOutlined, FastBackwardOutlined, SortAscendingOutlined, DownOutlined} from "@ant-design/icons";
+import { CommentOutlined, LikeTwoTone, TranslationOutlined, FastBackwardOutlined, SortAscendingOutlined, DownOutlined,  DislikeTwoTone,} from "@ant-design/icons";
 import { getSomeAnswerNew, evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
 import useAuth from "helpers/api/auth";
@@ -17,119 +17,165 @@ const requests = axios.create({
     // baseURL: process.env.API_HOST // Change to your desired host and port
 });
 requests.interceptors.request.use(
-    (config) => {
-        config.headers["content-type"] = "multipart/form-data";
-        config.headers["Access-Control-Allow-Origin"] = "*";
-        config.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
-        config.headers['token'] = Cookies.get('token')
-        return config;
-    },
-    (error) => {
-        console.log(error);
-        return Promise.reject(error);
-    }
+  (config) => {
+    config.headers["content-type"] = "multipart/form-data";
+    config.headers["Access-Control-Allow-Origin"] = "*";
+    config.headers["Access-Control-Allow-Headers"] =
+      "Origin, X-Requested-With, Content-Type, Accept";
+    config.headers["token"] = Cookies.get("token");
+    return config;
+  },
+  (error) => {
+    console.log(error);
+    return Promise.reject(error);
+  }
 );
 var stompClient = null;
 
 // eslint-disable-next-line no-empty-pattern
-const QuestionDetail = ({  }) => {
-    useAuth()
-    const { id } = useParams();
-    const router = useHistory();
-    const [isTrans, setIsTrans] = useState(false);
-    const [article, setArticle] = useState(null);
-    const [answers, setAnswers] = useState([]);
-    const [answerCount, setAnswerCount] = useState(null);
-    const [user, setUser] = useState({});
-    const [seletedLanguage, setSeletedLanguage] = useState("en");
-    const location = useLocation();
-    const [originalArticle, setOriginalArticle] = useState(null);
+const QuestionDetail = ({}) => {
+  useAuth();
+  const { id } = useParams();
+  const router = useHistory();
+  const [isTrans, setIsTrans] = useState(false);
+  const [article, setArticle] = useState(null);
+  const [answers, setAnswers] = useState([]);
+  const [answerCount, setAnswerCount] = useState(null);
+  const [user, setUser] = useState({});
+  const [seletedLanguage, setSeletedLanguage] = useState("en");
+  const location = useLocation();
+  const [originalArticle, setOriginalArticle] = useState(null);
+  const [areAnswersRendered, setAreAnswersRendered] = useState(false);
 
-    useEffect(() => {
+  const [sortedAnswers, setSortedAnswers] = useState([]);
+  const [stompClient, setStompClient] = useState(null);
+  const [shownAnswersCount, setShownAnswersCount] = useState(5);
 
+  useEffect(() => {
+
+    let stompClient;
+
+    const connectError = (err) => {
+      console.log("网络异常");
+      message.error("Web socket Interrupted");
+      setTimeout(() => {
+        console.log("Attempting to reconnect...");
         const newSocket = new SockJS("http://localhost:8080/my-websocket");
-        // let stompClient;
         stompClient = over(newSocket);
-        stompClient.connect({}, function() {
-            stompClient.subscribe("/topic/getQuestionById/"+id, function(msg) {
-                let body = JSON.parse(msg.body)
-                let destination = msg.headers.destination;
-                let parts = destination.split("/");
-                let lastNumber = parts[parts.length - 1];
-                const url = window.location.href;
-                const id = url.split('/').pop();
-                // console.log(id+lastNumber);
-                if (lastNumber === id) {
-                    let body = JSON.parse(msg.body);
-                    // console.log(body)
-                    setArticle(body);
-                    setOriginalArticle(body);
-                    // console.log(body?.answerCount)
-                    setAnswerCount(body?.answerCount);
-                    // console.log(body)
-                }
+      }, 3000);
+    };
 
-            })
-            stompClient.subscribe("/topic/getAllAnstoOneQ/"+id, function(msg) {
-                let body = JSON.parse(msg.body)
-                setAnswers(body);
-                console.log(body)
-            })
-
-            // eslint-disable-next-line no-use-before-define
-        }, connectError);
-        const connectError = (err) => {
-            console.log("Failed to connect to web socket server:")
-            message.error("Web socket Interrupted");
-            setTimeout(() => {
-                console.log("Attempting to reconnect...");
-                const newSocket = new SockJS("http://localhost:8080/my-websocket");
-                stompClient = over(newSocket);
-            }, 3000);
-        };
-
-        setUser(JSON.parse(localStorage.getItem("user")));
-        // console.log(user)
-        if (id !== undefined && id !== "undefined") {
-            console.log(id)
-            console.log("Fetching data with websocket...");
-            setTimeout(() => {
-                // eslint-disable-next-line no-unused-expressions
-                stompClient.send("/app/getQuestionById", {}, JSON.stringify({ ID: id }));
-                stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: id }));
-            }, 500); // 延迟1秒
-        }
-    }, [id]);
-
-    const handleEvaluate = async (id) => {
-        try {
-        await evaluate({
-            ID: id,
-            UporDownVote: 1
-        }).then(response => {
-            if (response.success === "true") {
-                message.info("Thumb up successfully");
-                const newAnswers = answers.map(answer => {
-                    if (answer.answer.id === id) {
-                        answer.likeCount += 1;
-                    }
-                    return answer;
-                });
-                setAnswers([...newAnswers]);
-                window.location.reload();
-            } else {
-                message.error("Thumb up failed");
-            }
+    const newSocket = new SockJS("http://localhost:8080/my-websocket");
+    stompClient = over(newSocket);
+    stompClient.connect(
+      {},
+      function () {
+        stompClient.subscribe("/topic/getQuestionById/" + id, function (msg) {
+          let body = JSON.parse(msg.body);
+          let destination = msg.headers.destination;
+          let parts = destination.split("/");
+          let lastNumber = parts[parts.length - 1];
+          const url = window.location.href;
+          const id = url.split("/").pop();
+          if (lastNumber === id) {
+            let body = JSON.parse(msg.body);
+            setArticle(body);
+            setOriginalArticle(body);
+            setAnswerCount(body?.answerCount);
+          }
         });
-        } catch (error) {
-            console.error("Translation error:", error);
+
+        stompClient.subscribe("/topic/getAllAnstoOneQ/" + id, function (msg) {
+          let body = JSON.parse(msg.body);
+          setAnswers(body);
+          console.log(body);
+          setAreAnswersRendered(false);
+          console.log(areAnswersRendered);
+        });
+      },
+      connectError
+    );
+
+    setStompClient(stompClient);
+}, []);
+
+
+useEffect(() => {
+  if (id !== undefined && id !== "undefined" && stompClient) {
+    console.log(id);
+    console.log("Fetching data with websocket...");
+    setTimeout(() => {
+      stompClient.send(
+        "/app/getQuestionById",
+        {},
+        JSON.stringify({ ID: id })
+      );
+      stompClient.send(
+        "/app/getAllAnstoOneQ",
+        {},
+        JSON.stringify({ pageIndex: 1, questionID: id })
+      );
+    }, 500);
+  }
+}, [id, stompClient]);
+
+  useEffect(() => {
+    if (answers && answers.length > 0) {
+      console.log("22222");
+      setAreAnswersRendered(true); // set to true when the answers components have been rendered
+    }
+  }, [answers]);
+
+  useEffect(() => {
+    if (areAnswersRendered && location.hash) {
+      console.log("11111");
+      const element = document.getElementById(location.hash.slice(1));
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, [areAnswersRendered, location.hash]);
+
+  const handleEvaluate = async (id, voteValue) => {
+    try {
+      await evaluate({
+        ID: id,
+        UporDownVote: voteValue,
+      }).then((response) => {
+        if (response.success === "true") {
+          message.info("Thumb up successfully");
+          const newAnswers = answers.map((answer) => {
+            if (answer.answer.id === id) {
+              answer.likeCount += voteValue;
+            }
+            return answer;
+          });
+          setAnswers([...newAnswers]);
+          window.location.reload();
+        } else {
+          message.error("Thumb up failed");
         }
-    };
-    const handleLanguageChange = (menuItem) => {
-        setSeletedLanguage(menuItem.key);
-    };
+      });
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+  };
+  const handleLanguageChange = (menuItem) => {
+    setSeletedLanguage(menuItem.key);
+  };
 
+  const handleUpvote = (id) => {
+    handleEvaluate(id, 1);
+    message.info("Thumb up successfully");
+  };
 
+  const handleDownvote = (id) => {
+    handleEvaluate(id, -1);
+    message.info("Thumb down successfully");
+  };
 
     const toggleTrans = async () => {
         if (article.question.title !== originalArticle.question.title) {
@@ -152,17 +198,17 @@ const QuestionDetail = ({  }) => {
                     targetLanguage: seletedLanguage,
                 });
 
-                const newArticle = { ...copiedArticle };
-                newArticle.question.title = response1;
-                newArticle.question.description = response2;
-                setArticle(newArticle);
+        const newArticle = { ...copiedArticle };
+        newArticle.question.title = response1;
+        newArticle.question.description = response2;
+        setArticle(newArticle);
 
-                setIsTrans(true);
-            } catch (error) {
-                console.error("Translation error:", error);
-            }
-        }
-    };
+        setIsTrans(true);
+      } catch (error) {
+        console.error("Translation error:", error);
+      }
+    }
+  };
 
 
     const handleChange = values => {
@@ -176,8 +222,8 @@ const QuestionDetail = ({  }) => {
         });
     };
 
-    const [sortByVoteCount, setSortByVoteCount] = useState(false);
-    const [sortedAnswers, setSortedAnswers] = useState([]);
+    const [sortByVoteCount, setSortByVoteCount] = useState(true);
+    //const [sortedAnswers, setSortedAnswers] = useState([]);
     useEffect(() => {
         const sorted = sortByVoteCount
           ? [...answers].sort((a, b) => b.answer.vote_count - a.answer.vote_count)
@@ -208,8 +254,8 @@ const QuestionDetail = ({  }) => {
 
     const menu = (
       <Menu onClick={handleSortByVoteCount}>
-          <Menu.Item key="1">vote count</Menu.Item>
-          <Menu.Item key="2">chronic order</Menu.Item>
+          <Menu.Item key="1">chronological order</Menu.Item>
+          <Menu.Item key="2">vote count</Menu.Item>
       </Menu>
     );
 
@@ -222,93 +268,114 @@ const QuestionDetail = ({  }) => {
     };
 
 
-    return (
-        <div className={styles.container}>
-            <div className={styles.main}>
-                { article && <Card
-                    style={{ width: 765 }}
-                    cover={<img style={{ height: '256px', objectFit: 'cover', objectPosition: 'center' }} alt="example" src="https://cdn.pixabay.com/photo/2020/04/19/08/17/watercolor-5062356_960_720.jpg" />}
+  return (
+    <div className={styles.container}>
+      <div className={styles.main}>
+        {article && (
+          <Card
+            style={{ width: 765 }}
+            cover={
+              <img
+                style={{
+                  height: "256px",
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+                alt="example"
+                src="https://cdn.pixabay.com/photo/2020/04/19/08/17/watercolor-5062356_960_720.jpg"
+              />
+            }
+          >
+            <Row>
+              <Col span={3}>
+                <Image
+                  preview={false}
+                  width={64}
+                  height={64}
+                  src={`https://api.dicebear.com/6.x/adventurer/svg?seed=${article.user_avatar}&scale=90`}//这里变动了
+
+                />
+              </Col>
+              <Col span={13}>
+                {/*<p className={styles.name}>{article.username}</p>*/}
+                {user && user.username === article.username ? (
+                  <div>
+                    <p
+                      className={styles.name}
+                      style={{ fontSize: "18px", marginTop: "4px" }}
+                    >
+                      {article.username}
+                    </p>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() =>
+                      router.push(`/center/${`U${article.userId * 3}`}`)
+                    }
+                    className={styles.username}
+                  >
+                    <p
+                      className={styles.name}
+                      style={{ fontSize: "18px", marginTop: "4px" }}
+                    >
+                      {article.username}
+                    </p>
+                  </div>
+                )}
+                <p className={styles.date}>
+                  {moment(article.question.change_time).format("ll")}
+                </p>
+              </Col>
+              <Col>
+                <Dropdown.Button
+                  onClick={(e) => e.preventDefault()}
+                  overlay={TransMenu}
+                  icon={<DownOutlined />}
                 >
-                    <Row>
-                        <Col span={3}>
-                            <Image preview={false} width={64} height={64} src={`https://bing.ioliu.cn/v1?d=${article.userId}&w=32&h=32`} fallback="data:image/png;base64,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"/>
-                            {/*{ user && user.username === answer.who_answers_name ? <div>*/}
-                            {/*    <p className={styles.name} style={{ fontSize: '12px', marginTop: '4px' }}>{answer.who_answers_name}</p>*/}
-                            {/*</div> : <div onClick={() => router.push({*/}
-                            {/*    pathname: "/chat", state: { fromUserId: user.id, toUserId: answer.who_answersId }*/}
-                            {/*})} className={styles.username}>*/}
-                            {/*    <p className={styles.name} style={{ fontSize: '12px', marginTop: '4px' }}>{answer.who_answers_name}</p>*/}
-                            {/*</div>*/}
-                            {/*}*/}
-                        </Col>
-                        <Col span={13}>
-                            {/*<p className={styles.name}>{article.username}</p>*/}
-                            { user && user.username === article.username ? <div>
-                                <p className={styles.name} style={{ fontSize: '18px', marginTop: '4px' }}>{article.username}</p>
-                            </div> : <div onClick={() => router.push(`/center/${`U${article.userId * 3}`}`)} className={styles.username}>
-                                <p className={styles.name} style={{ fontSize: '18px', marginTop: '4px' }}>{article.username}</p>
-                            </div>
-                            }
-                            <p className={styles.date}>{moment(article.question.change_time).format('ll')}</p>
-                        </Col>
-                        <Col>
-                            <Dropdown overlay={TransMenu}>
-                                <Button onClick={(e) => e.preventDefault()}>
-                                    <Space>
-                                        Translate to {languageLabels[seletedLanguage]}
-                                        <DownOutlined />
-                                    </Space>
-                                </Button>
-                            </Dropdown>
-                        </Col>
-                        <Col>
-                            <Button
-                                style={{ backgroundColor: isTrans ? "#537494" : "#3B7AF5" }}
-                                onClick={toggleTrans}
-                                type="primary"
-                                icon={<TranslationOutlined />}
-                            >
-                            </Button>
-                        </Col>
+                  Translate to {languageLabels[seletedLanguage]}
+                </Dropdown.Button>
+              </Col>
+              <Col>
+                <Button
+                  style={{ backgroundColor: isTrans ? "#537494" : "#3B7AF5" }}
+                  onClick={toggleTrans}
+                  type="primary"
+                  icon={<TranslationOutlined />}
+                ></Button>
+              </Col>
 
-                        <Col>
-                            <Button
-                                style={{ marginLeft: "8px" }}
-                                onClick={() => router.push("/index/1")}
-                            >
-                                <FastBackwardOutlined />
-                            </Button>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={18}>
-                            <span className={styles.title}>{article.question.title}</span>
-                        </Col>
-                        <Col span={6}>
-                            <Button onClick={() => router.push(`/question/${id}/answer`)} style={{ backgroundColor: '#6F3BF5', marginTop: '16px' }} type={"primary"}>Answer this Question</Button>
-
-                            {/*<div style={{ float: "right", marginRight: '8px', marginTop: '8px' }}>*/}
-                            {/*    <div className={styles.hover} onClick={handleQuestionEvaluate}>*/}
-                            {/*        <LikeTwoTone />*/}
-                            {/*        <span className={styles.date}> { article.likeCount } like</span>*/}
-                            {/*    </div>*/}
-                            {/*</div>*/}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <p className={styles.description}>{ article.question.description }</p>
-                    </Row>
+              <Col>
+                <Button
+                  style={{ marginLeft: "8px" }}
+                  onClick={() => router.push("/index/1")}
+                >
+                  <FastBackwardOutlined />
+                </Button>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={18}>
+                <span className={styles.title}>{article.question.title}</span>
+              </Col>
+              <Col span={6}>
+                <Button
+                  onClick={() => router.push(`/question/${id}/answer`)}
+                  style={{ backgroundColor: "#6F3BF5", marginTop: "16px" }}
+                  type={"primary"}
+                >
+                  Answer this Question
+                </Button>
+              </Col>
+            </Row>
+            <Row>
+              <p className={styles.description}>
+                {article.question.description}
+              </p>
+            </Row>
 
             <p style={{ fontWeight: 600, fontSize: "16px" }}></p>
-            {/* {answers*/}
-            {/*  //   .sort((a, b) => b.answer.vote_count - a.answer.vote_count)*/}
 
-            {/*  .map((answer) => { */}
-            {/*<button onClick={handleSortByVoteCount}>*/}
-            {/*  {sortByVoteCount*/}
-            {/*    ? "Sort by chronological order"*/}
-            {/*    : "Sort by vote count"}*/}
-            {/*</button>*/}
+
             <Dropdown overlay={menu}>
               <Button
                 style={{ backgroundColor: "#2ca1c4", marginTop: "16px" }}
@@ -320,59 +387,113 @@ const QuestionDetail = ({  }) => {
             <p style={{ fontWeight: 600, fontSize: "16px" }}>
               {answerCount} Answers
             </p>
-            {sortedAnswers.map((answer) => {
+            {sortedAnswers.slice(0, shownAnswersCount).map((answer) => {
               return (
-                <div key={answer.answer.id}>
+                <div id={answer.answer.id} key={answer.answer.id}>
                   <Row>
-                    <Col span={3}>
+                    <Col span={3} style={{ textAlign: 'center' }}>
                       <Image
                         preview={false}
-                        width={48}
-                        height={48}
-                        src={article.headImg}
-                        fallback="data:image/png;base64,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"
+                        width={64}
+                        height={64}
+                        src={`https://api.dicebear.com/6.x/adventurer/svg?seed=${answer.who_answers_avatar}&scale=90`}//这里变动了
                       />
 
-                                    { user && user.username === answer.who_answers_name ? <div>
-                                        <p className={styles.name} style={{ fontSize: '12px', marginTop: '4px' }}>{answer.who_answers_name}</p>
-                                    </div> : <div onClick={() => router.push(`/center/${`U${answer.who_answersId * 3}`}`)
-
-                                    } className={styles.username}>
-                                        <p className={styles.name} style={{ fontSize: '12px', marginTop: '4px' }}>{answer.who_answers_name}</p>
-                                    </div>
-                                    }
-
-                                </Col>
-
-                                <Col span={18}>
-                                    <div onClick={() => { router.push(`/question/answer/${answer.answer.id}`) }} className={styles.comment}>
-                                        <p style={{ marginTop: '0px' }}>{ answer.answer.content }</p>
-                                        <p>
-                                            <CommentOutlined />
-                                            <span className={styles.date} style={{ marginLeft: '4px' }}>{ answer.answer.comment_count } comments</span>
-                                            <span className={styles.date} style={{ float: 'right' }}>Posted on { moment(answer.answer.change_time).format('ll') }</span>
-                                        </p>
-                                    </div>
-                                </Col>
-
-                                <Col>
-                                    <div className={styles.hover} onClick={() => handleEvaluate(answer.answer.id)}>
-                                        <LikeTwoTone />
-                                        <span style={{ marginLeft: '4px' }} className={styles.date}>{ answer.answer.vote_count } likes</span>
-                                    </div>
-                                </Col>
-                            </Row>
-
-                            <Divider />
+                      {user && user.username === answer.who_answers_name ? (
+                        <div>
+                          <p
+                            className={styles.name}
+                            style={{ fontSize: "16px", marginTop: "4px" }}
+                          >
+                            {answer.who_answers_name}
+                          </p>
                         </div>
+                      ) : (
+                        <div
+                          onClick={() =>
+                            router.push(
+                              `/center/${`U${answer.who_answersId * 3}`}`
+                            )
+                          }
+                          className={styles.username}
+                        >
+                          <p
+                            className={styles.name}
+                            style={{ fontSize: "14px", marginTop: "4px" }}
+                          >
+                            {answer.who_answers_name}
+                          </p>
+                        </div>
+                      )}
+                    </Col>
+
+                    <Col span={18}>
+                      <div
+                        onClick={() => {
+                          router.push(`/question/answer/${answer.answer.id}`);
+                        }}
+                        className={styles.comment}
+                      >
+                        <p style={{ marginTop: "0px", wordWrap: "break-word", whiteSpace: "normal" }}>
+                          {answer.answer.content}
+                        </p>
+                        <p>
+                          <CommentOutlined />
+                          <span
+                            className={styles.date}
+                            style={{ marginLeft: "4px" }}
+                          >
+                            {answer.answer.comment_count} comments
+                          </span>
+                          <span
+                            className={styles.date}
+                            style={{ float: "right" }}
+                          >
+                            Posted on{" "}
+                            {moment(answer.answer.change_time).format("ll")}
+                          </span>
+                        </p>
+                      </div>
+                    </Col>
+
+                    <Col style={{ display: 'flex', justifyContent: 'space-between'}}>
+                      <div
+                        className={styles.hover}
+                        onClick={() => handleUpvote(answer.answer.id)}
+                      >
+                        <LikeTwoTone />
+                        <span
+                          style={{ marginLeft: "4px",fontWeight:"bold",fontSize: "5px",color: "purple" }}
+                          className={styles.date}
+                        >
+                          {answer.answer.vote_count} likes
+                        </span>
+                      </div>
+                      <div
+                        className={styles.hover}
+                        onClick={() => handleDownvote(answer.answer.id)}
+                        style={{ position: 'relative', left: '5px', top: '1px' }}
+                      >
+                        <DislikeTwoTone />
+                        {/* <span style={{ marginLeft: '4px' }} className={styles.date}>{answer.answer.vote_count} dislikes</span> */}
+                      </div>
+                    </Col>
+                  </Row>
+
+                  <Divider />
+                </div>
               );
-                    })}
+            })}
+            {shownAnswersCount < sortedAnswers.length && (
+                    <button onClick={() => setShownAnswersCount(shownAnswersCount + 5)}>
+                      Show more
+                    </button>
+                  )}
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+};
 
-                    <Pagination onChange={handleChange} style={{ marginTop: '24px', textAlign: 'center' }} defaultPageSize={3} defaultCurrent={1} total={answerCount}></Pagination>
-                </Card> }
-            </div>
-        </div>
-    )
-}
-
-export default QuestionDetail
+export default QuestionDetail;
