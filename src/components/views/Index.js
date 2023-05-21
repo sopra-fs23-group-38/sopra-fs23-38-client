@@ -75,138 +75,400 @@ const Index = () => {
 
 
         const subscribeToHowManyQuestions = () => {
-            const subhowmany = newStompClient.subscribe("/topic/howManyQuestions/", function(msg) {
-                let body = JSON.parse(msg.body);
-                const url = window.location.href;
-                const id = url.split('/').pop();
-                setPage(id);
-                if (id > body.howmanypages) {
-                    handlePageChange(1);
-                    setPage(id);
-                }
-                setTotal(body.howmanypages);
-                console.log(body);
-            });
-            setSubscriptionhowmanyId(subhowmany.id)
-        };
-
-        const subscribeToListQuestions = () => {
-            const topic = `/topic/listQuestions/${page}/`;
-            const sub = newStompClient.subscribe(topic, function(msg) {
-                if(selectedTag===""){
-                    console.log(selectedTag+"selectedTag")
-                let destination = msg.headers.destination;
-                let parts = destination.split("/");
-                let lastNumber = parts[parts.length - 2];
-                const url = window.location.href;
-                const id = url.split('/').pop();
-                if (lastNumber === id) {
+            if(selectedTag === ""){
+                const subhowmany = newStompClient.subscribe("/topic/howManyQuestions/", function(msg) {
                     let body = JSON.parse(msg.body);
-                    setItems(body);
-                }
-            }});
-            setSubscriptionId(sub.id)
-        };
-
-        // if (socket) {
-        //     socket.disconnect();
-        //     setSocket(null);
-        // }
-
-        // setSocket(newStompClient);
-        // console.log(socket);
-        connectToWebSocket();
-
-
-        return () => {
-            isUnmounted = true;
-            if (newStompClient){
-            // newStompClient && newStompClient.disconnect();
-                newStompClient.disconnect();
-                }
-            if (subscriptionId) {
-                newStompClient.unsubscribe(subscriptionId);
-                newStompClient.unsubscribe(subscriptionhowmanyId);
-            }
-        };
-    }, []);
-
-
-
-    useEffect(() => {
-        if (selectedTag !== "") {
-            const topictag = `/topic/listQuestions/${page}/${selectedTag}/`;
-            console.log(page)
-            if (newStompClient && newStompClient.connected && webSocketConnected) { // 确保WebSocket连接已建立
-                newStompClient.unsubscribe(subscriptionId);
-                newStompClient.unsubscribe(subscriptionhowmanyId);
-
-
-                const subscription = newStompClient.subscribe(topictag, function(msg) {
-                    let destination = msg.headers.destination;
-                    let parts = destination.split("/");
-                    let lastNumber = parts[parts.length - 3];
                     const url = window.location.href;
                     const id = url.split('/').pop();
-                    console.log(lastNumber)
-                    if (lastNumber === id) {
-                        let body = JSON.parse(msg.body);
-
-                        setItems(body);
-
-                        // console.log(Math.ceil(sortedItems.length / 7));
-                        if (body.length === 0) {
-                            setPage(1);
-                            setTotal(1);
-                        } else {
-                            setPage(Math.ceil(body.length / 7));
-                            setTotal(Math.ceil(body.length / 7));
-                        }
+                    setPage(id);
+                    if (id > body.howmanypages) {
+                        handlePageChange(1);
+                        setPage(id);
                     }
-                });
-                return () => {
-                    subscription.unsubscribe();
-                };
+                    setTotal(body.howmanypages);
+                    console.log(body);
+                }
+                );
+                setSubscriptionhowmanyId(subhowmany.id);
+            } else {
+                const subhowmany = newStompClient.subscribe(
+                    `/topic/howManyQuestions/${selectedTag}/`,
+                    function (msg) {
+                        let body = JSON.parse(msg.body);
+                        const url = window.location.href;
+                        const id = url.split("/").pop();
+                        setPage(id);
+                        if (id > body.howmanypages) {
+                            handlePageChange(1);
+                            setPage(id);
+                        }
+                        setTotal(body);
+                        // console.log(body);
+                    }
+                );
+                setSubscriptionhowmanyId(subhowmany.id);
             }
+    };
+
+    const subscribeToListQuestions = () => {
+      if (sortByAnswerCount === 0) {
+        if (selectedTag !== "") {
+          const topic = `/topic/listQuestions/${page}/${selectedTag}/`;
+          const sub = newStompClient.subscribe(topic, function (msg) {
+            // if(selectedTag===""){
+            console.log(selectedTag + "selectedTag");
+            let destination = msg.headers.destination;
+            let parts = destination.split("/");
+            let lastNumber = parts[parts.length - 3];
+            console.log(lastNumber);
+            const url = window.location.href;
+            const id = url.split("/").pop();
+            if (lastNumber === id) {
+              let body = JSON.parse(msg.body);
+              setItems(body);
+            }
+          });
+          setSubscriptionId(sub.id);
+        } else {
+          const topic = `/topic/listQuestions/${page}/`;
+          const sub = newStompClient.subscribe(topic, function (msg) {
+            if (selectedTag === "") {
+              console.log(selectedTag + "selectedTag");
+              let destination = msg.headers.destination;
+              let parts = destination.split("/");
+              let lastNumber = parts[parts.length - 2];
+              const url = window.location.href;
+              const id = url.split("/").pop();
+              if (lastNumber === id) {
+                let body = JSON.parse(msg.body);
+                setItems(body);
+              }
+            }
+          });
+          setSubscriptionId(sub.id);
         }
-
-    }, [page, selectedTag,socket, webSocketConnected]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (selectedTag==="all"){
-                window.location.reload();
+      } else {
+        if (selectedTag !== "") {
+          const topic = `/topic/listQuestions/${page}/${selectedTag}/1/`;
+          const sub = newStompClient.subscribe(topic, function (msg) {
+            // if(selectedTag===""){
+            console.log(selectedTag + "selectedTag");
+            let destination = msg.headers.destination;
+            let parts = destination.split("/");
+            let lastNumber = parts[parts.length - 3];
+            console.log(lastNumber);
+            const url = window.location.href;
+            const id = url.split("/").pop();
+            if (lastNumber === id) {
+              let body = JSON.parse(msg.body);
+              setItems(body);
+              // }
             }
-            console.log("00000"+selectedTag)
-            if (newStompClient !== null) {
-                newStompClient.send("/app/getHowManyQuestions/", {});
-                newStompClient.send("/app/getAllQuestions/" + page.toString() + "/" + selectedTag, {});}
-        }, 1000);
-
-
-        // 清除定时器
-        return () => {clearTimeout(timer);}
-    }, [selectedTag]);
-
-    const handleSortByAnswerCount = () => {
-        setSortByAnswerCount(!sortByAnswerCount);
-        if (sortByAnswerCount){
-            message.info("Sort by time");
-        }else{
-        message.info("Sort by answer count");}
-        const sortedItems = sortByAnswerCount
-          ? [...items].sort((a, b) => b.question.answer_count - a.question.answer_count)
-          : [...items].sort((a, b) => new Date(b.question.change_time) - new Date(a.question.change_time));
-        setItems(sortedItems)
-        // console.log(sortedItems);
-
+          });
+          setSubscriptionId(sub.id);
+        } else {
+          const topic = `/topic/listQuestions/${page}/1/`;
+          const sub = newStompClient.subscribe(topic, function (msg) {
+            if (selectedTag === "") {
+              console.log(selectedTag + "selectedTag");
+              let destination = msg.headers.destination;
+              let parts = destination.split("/");
+              let lastNumber = parts[parts.length - 3];
+              console.log(lastNumber);
+              const url = window.location.href;
+              const id = url.split("/").pop();
+              if (lastNumber === id) {
+                let body = JSON.parse(msg.body);
+                setItems(body);
+                // }
+              }
+            }
+          });
+          setSubscriptionId(sub.id);
+        }
+      }
     };
-    //select question from tags:
-    const handleFilterByTag = (value) => {
-        console.log(value)
-        setSelectedTag(value);
-        // selectedTag = `"${value}"`;
+
+
+    // setSocket(newStompClient);
+    // console.log(socket);
+    connectToWebSocket();
+
+    return () => {
+      isUnmounted = true;
+      if (newStompClient) {
+        // newStompClient && newStompClient.disconnect();
+        newStompClient.disconnect();
+      }
+      if (subscriptionId) {
+        newStompClient.unsubscribe(subscriptionId);
+        newStompClient.unsubscribe(subscriptionhowmanyId);
+      }
     };
+  }, [page]);
+
+  useEffect(() => {
+    if (selectedTag !== "" && sortByAnswerCount === 0) {
+      const topictag = `/topic/listQuestions/${page}/${selectedTag}/`;
+      console.log(page);
+      if (newStompClient && newStompClient.connected && webSocketConnected) {
+        // 确保WebSocket连接已建立
+        newStompClient.unsubscribe(subscriptionId);
+        newStompClient.unsubscribe(subscriptionhowmanyId);
+
+        const subscription = newStompClient.subscribe(topictag, function (msg) {
+          let destination = msg.headers.destination;
+          let parts = destination.split("/");
+          let lastNumber = parts[parts.length - 3];
+          const url = window.location.href;
+          const id = url.split("/").pop();
+          console.log(lastNumber);
+          if (lastNumber === id) {
+            let body = JSON.parse(msg.body);
+
+            setItems(body);
+
+            // console.log(Math.ceil(sortedItems.length / 7));
+            if (body.length === 0) {
+              setPage(1);
+              setTotal(1);
+            } else {
+              setPage(Math.ceil(body.length / 7));
+              setTotal(Math.ceil(body.length / 7));
+            }
+          }
+        });
+        const subhowmanytag = newStompClient.subscribe(
+          `/topic/howManyQuestions/${selectedTag}/`,
+          function (msg) {
+            let body = JSON.parse(msg.body);
+            const url = window.location.href;
+            const id = url.split("/").pop();
+            setPage(id);
+            if (id > body) {
+              handlePageChange(1);
+              setPage(id);
+            }
+            setTotal(body);
+
+            console.log(body);
+          }
+        );
+
+        return () => {
+          subscription.unsubscribe();
+          subhowmanytag.unsubscribe();
+        };
+      }
+    }
+    if (sortByAnswerCount === 1) {
+      const topictag = `/topic/listQuestions/${page}/${selectedTag}/1/`;
+      console.log(page);
+      if (newStompClient && newStompClient.connected && webSocketConnected) {
+        // 确保WebSocket连接已建立
+        newStompClient.unsubscribe(subscriptionId);
+        newStompClient.unsubscribe(subscriptionhowmanyId);
+
+        const subscription = newStompClient.subscribe(topictag, function (msg) {
+          let destination = msg.headers.destination;
+          let parts = destination.split("/");
+          let lastNumber = parts[parts.length - 4];
+          const url = window.location.href;
+          const id = url.split("/").pop();
+          console.log(lastNumber);
+          if (lastNumber === id) {
+            let body = JSON.parse(msg.body);
+
+            setItems(body);
+
+            // console.log(Math.ceil(sortedItems.length / 7));
+            if (body.length === 0) {
+              setPage(1);
+              setTotal(1);
+            } else {
+              setPage(Math.ceil(body.length / 7));
+              setTotal(Math.ceil(body.length / 7));
+            }
+          }
+        });
+        const subhowmanytag = newStompClient.subscribe(
+          `/topic/howManyQuestions/${selectedTag}/`,
+          function (msg) {
+            let body = JSON.parse(msg.body);
+            const url = window.location.href;
+            const id = url.split("/").pop();
+            setPage(id);
+            if (id > body) {
+              handlePageChange(1);
+              setPage(id);
+            }
+            setTotal(body);
+
+            console.log(body);
+          }
+        );
+        return () => {
+          subscription.unsubscribe();
+          subhowmanytag.unsubscribe();
+        };
+      }
+    }
+  }, [page, selectedTag, socket, webSocketConnected]);
+
+  useEffect(() => {
+    if (sortByAnswerCount === 1 && selectedTag === "") {
+      const topictag = `/topic/listQuestions/${page}/1/`;
+      console.log(page);
+      if (newStompClient && newStompClient.connected && webSocketConnected) {
+        // 确保WebSocket连接已建立
+        newStompClient.unsubscribe(subscriptionId);
+        // newStompClient.unsubscribe(subscriptionhowmanyId);
+
+        const subscriptionsort = newStompClient.subscribe(
+          topictag,
+          function (msg) {
+            let destination = msg.headers.destination;
+            let parts = destination.split("/");
+            let lastNumber = parts[parts.length - 3];
+            const url = window.location.href;
+            const id = url.split("/").pop();
+            console.log(lastNumber);
+            if (lastNumber === id) {
+              let body = JSON.parse(msg.body);
+
+              setItems(body);
+
+              // console.log(Math.ceil(sortedItems.length / 7));
+              // if (body.length === 0) {
+              //     setPage(1);
+              //     setTotal(1);
+              // } else {
+              //     setPage(Math.ceil(body.length / 7));
+              //     setTotal(Math.ceil(body.length / 7));
+              // }
+            }
+          }
+        );
+        return () => {
+          subscriptionsort.unsubscribe();
+        };
+      }
+    }
+    if (sortByAnswerCount === 1 && selectedTag !== "") {
+      const topictag = `/topic/listQuestions/${page}/${selectedTag}/1/`;
+      console.log(page);
+      if (newStompClient && newStompClient.connected && webSocketConnected) {
+        // 确保WebSocket连接已建立
+        newStompClient.unsubscribe(subscriptionId);
+        newStompClient.unsubscribe(subscriptionhowmanyId);
+
+        const subscription = newStompClient.subscribe(topictag, function (msg) {
+          let destination = msg.headers.destination;
+          let parts = destination.split("/");
+          let lastNumber = parts[parts.length - 4];
+          const url = window.location.href;
+          const id = url.split("/").pop();
+          console.log(lastNumber);
+          if (lastNumber === id) {
+            let body = JSON.parse(msg.body);
+
+            setItems(body);
+
+            // console.log(Math.ceil(sortedItems.length / 7));
+            if (body.length === 0) {
+              setPage(1);
+              setTotal(1);
+            } else {
+              setPage(Math.ceil(body.length / 7));
+              setTotal(Math.ceil(body.length / 7));
+            }
+          }
+        });
+        const subhowmanytag = newStompClient.subscribe(
+          `/topic/howManyQuestions/${selectedTag}/`,
+          function (msg) {
+            let body = JSON.parse(msg.body);
+            const url = window.location.href;
+            const id = url.split("/").pop();
+            setPage(id);
+            if (id > body) {
+              handlePageChange(1);
+              setPage(id);
+            }
+            setTotal(body);
+
+            console.log(body);
+          }
+        );
+        return () => {
+          subscription.unsubscribe();
+          subhowmanytag.unsubscribe();
+        };
+      }
+    }
+  }, [page, sortByAnswerCount, socket, webSocketConnected]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (selectedTag === "all") {
+        window.location.reload();
+      }
+      console.log("00000" + selectedTag + page);
+      if (newStompClient !== null) {
+        if (sortByAnswerCount === 0) {
+          newStompClient.send("/app/getHowManyQuestions/", {});
+          newStompClient.send(
+            "/app/getAllQuestions/" + page.toString() + "/" + selectedTag,
+            {}
+          );
+        } else {
+          if (selectedTag) {
+            // newStompClient.send("/app/getHowManyQuestions/"+selectedTag, {});
+            newStompClient.send(
+              "/app/getAllQuestions/" +
+                page.toString() +
+                "/" +
+                selectedTag +
+                "/" +
+                sortByAnswerCount,
+              {}
+            );
+          } else {
+            newStompClient.send(
+              "/app/getAllQuestions/" + page.toString() + "/" + 1,
+              {}
+            );
+          }
+        }
+      }
+    }, 1000);
+
+    // 清除定时器
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [selectedTag, page, sortByAnswerCount]);
+
+  const handleSortByAnswerCount = () => {
+    if (sortByAnswerCount === 0) {
+      setSortByAnswerCount(1);
+      message.info("Sort by answer count");
+    } else {
+      window.location.reload();
+      message.info("Sort by time");
+    }
+    // const sortedItems = sortByAnswerCount
+    //   ? [...items].sort((a, b) => b.question.answer_count - a.question.answer_count)
+    //   : [...items].sort((a, b) => new Date(b.question.change_time) - new Date(a.question.change_time));
+    // setItems(sortedItems)
+    // console.log(sortedItems);
+  };
+  //select question from tags:
+  const handleFilterByTag = (value) => {
+    console.log(value);
+    setSelectedTag(value);
+    // selectedTag = `"${value}"`;
+  };
 
 
     const menu = (
@@ -279,16 +541,17 @@ const Index = () => {
                                             cover: "error",
                                             description: item.question.description,
                                             likeCount: item.likeCount,
-                                            bio: "",
                                             email: "",
                                             tag: item.question.tag,
+                                            nameid: item.who_asksId,
+                                            avatar:item.who_asks_avatar
                                         }}
                                     />
                                 </div>
                             );
                         })}
                     <Pagination
-                        onChange={(page) => setPage(page)}
+                        onChange={(page) => handlePageChange(page)}
                         style={{ marginTop: "24px", textAlign: "center" }}
                         defaultPageSize={3}
                         defaultCurrent={1}
@@ -298,5 +561,5 @@ const Index = () => {
             </main>
         </div>
     );
-}
+};
 export default Index;

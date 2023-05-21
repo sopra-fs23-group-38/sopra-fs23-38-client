@@ -169,9 +169,21 @@ const Header = () => {
                 }}
                 offset={[10,20]}
               >
-                <Badge count={hasNew} style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}>
-                  <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />
-                </Badge>
+                {
+                  hasNew > 0 ?
+                    (
+                      <Badge
+                        count={hasNew}
+                        style={{ backgroundColor: "#f5222d", fontSize: "8px", fontWeight: "bold", right: -5, top: -5 }}
+                        offset={[0, 0]}
+                      >
+                        <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />
+                      </Badge>
+                    ) :
+                    (
+                      <Avatar icon={<UserOutlined />} style={{ fontSize: "20px" }} />
+                    )
+                }
               </Popover>
             </Dropdown>
           ) : (
