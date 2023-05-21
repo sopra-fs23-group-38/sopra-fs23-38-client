@@ -9,8 +9,11 @@ function Register() {
     const history = useHistory();
     const [form] = Form.useForm();
     const [passwordError, setPasswordError] = useState(false);
+    const [avatars, setAvatars] = useState([]);
+    const [selectedAvatar, setSelectedAvatar] = useState('');
 
     const onFinish = (values) => {
+        values.avatar = selectedAvatar;
         register(values).then((response) => {
             if (response.success === 'false') {
                 message.error(response.reason);
@@ -21,6 +24,36 @@ function Register() {
                 });
             }
         });
+    };
+
+    const generateAvatars = () => {
+        let seeds = ['Samantha', 'Callie', 'Garfield', 'Abby', 'Buster', 'Jack', 'Angel', 'Molly', 'Whiskers', 'Cookie', 'Callie', 'Annie', 'Sassy', 'Kiki', 'Mittens', 'Trouble', 'Bubba', 'Jasper', 'Dusty', 'Cuddles', 'Bear', 'Midnight', 'Bailey', 'Daisy', 'Scooter'];
+        const newAvatars = [];
+
+        // Shuffle seeds array
+        for (let i = seeds.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [seeds[i], seeds[j]] = [seeds[j], seeds[i]];
+        }
+
+        for(let i=0; i<5; i++) {
+            const randomSeed = seeds[i]; // Get a seed from the shuffled array
+            newAvatars.push({
+                url: `https://api.dicebear.com/6.x/adventurer/svg?seed=${randomSeed}&scale=90`,
+                seed: randomSeed,
+            });
+        }
+        setAvatars(newAvatars);
+    };
+
+
+
+    const handleAvatarClick = (avatar) => {
+        setSelectedAvatar(avatar.seed); // Now storing the seed as the selected avatar
+        form.setFieldsValue({
+            avatar: avatar.seed, // Now setting the seed as the form value
+        });
+        console.log("Selected avatar: ", avatar.seed);
     };
 
     const handlePasswordConfirm = (rule, value, callback) => {
@@ -96,6 +129,29 @@ function Register() {
 
                     <Form.Item name="birthday">
                         <Input style={{ width: '240px' }} size={'large'} placeholder={'Enter Birthday (optional)'} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="avatar"
+                        label="Choose Your Avatar"
+                        rules={[{ required: true, message: 'Please select an avatar.' }]}
+                        initialValue={selectedAvatar}
+                    >
+                        <div>
+                            <Button onClick={generateAvatars}>Generate Avatars</Button>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+                            {avatars.map((avatar, index) => (
+                                <div key={index} onClick={() => handleAvatarClick(avatar)}>
+                                    <img
+                                        src={avatar.url}
+                                        alt="Generated avatar"
+                                        style={{ ...avatar.seed === selectedAvatar ? { border: '2px solid blue' } : {}, width: '100px', height: '100px' }}
+                                    />
+                                </div>
+                            ))}
+                            </div>
+                            <Input type="hidden" value={selectedAvatar} />
+                        </div>
                     </Form.Item>
 
                     <Row style={{ marginTop: '48px' }}>
