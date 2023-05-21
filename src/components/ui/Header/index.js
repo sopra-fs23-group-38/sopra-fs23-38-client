@@ -1,12 +1,11 @@
-import { Avatar, Badge,Button, Col, Dropdown, Row, Popover, message} from "antd";
+import { Avatar, Badge,Button, Col, Dropdown, Row, Popover} from "antd";
 import { useEffect, useState } from "react";
 import {
-  AlertTwoTone,
   SearchOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import styles from "./header.module.scss";
-import { cleanHasNew, getHasNew } from "helpers/api/user";
+import { cleanHasNew} from "helpers/api/user";
 import Cookies from "js-cookie";
 import { useHistory } from "react-router-dom";
 import SockJS from "sockjs-client";

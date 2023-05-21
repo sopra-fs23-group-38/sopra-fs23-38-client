@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Card, Divider, Form, Image, Input, message } from "antd";
+import { Button, Card, Divider, Form, Input, message } from "antd";
 import { useLocation } from "react-router-dom";
 import SockJS from 'sockjs-client';
-import { insertMessage, listMessage } from "helpers/api/message";
+//import { insertMessage, listMessage } from "helpers/api/message";
 import styles from "styles/views/chat.module.scss";
 import { over } from 'stompjs';
 var stompClient = null;

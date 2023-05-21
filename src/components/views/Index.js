@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {Button, Menu, message, Pagination, Dropdown,Select} from "antd";
 import { SortAscendingOutlined} from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
@@ -14,9 +14,9 @@ const Index = () => {
     const [items, setItems] = useState([]);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
-    const [user, setUser] = useState({});
+    //const [user, setUser] = useState({});
     const [socket, setSocket] = useState(null);
-    const [socketUpdated, setSocketUpdated] = useState(false);
+    //const [socketUpdated, setSocketUpdated] = useState(false);
     const [selectedTag, setSelectedTag] = useState("");
     // Sort by answer count
     const [sortByAnswerCount, setSortByAnswerCount] = useState(false);

@@ -1,10 +1,10 @@
-import { useState, useEffect,Fragment } from "react";
+import { useState, useEffect } from "react";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import moment from "moment/moment";
-import { Button, Card, Col, Divider, Image, message, Pagination, Row, Dropdown, Menu, Space} from "antd";
+import { Button, Card, Col, Divider, Image, message, Row, Dropdown, Menu} from "antd";
 import { CommentOutlined, LikeTwoTone, TranslationOutlined, FastBackwardOutlined, SortAscendingOutlined, DownOutlined,  DislikeTwoTone,} from "@ant-design/icons";
-import { getSomeAnswerNew, evaluate } from "helpers/api/answer";
+import { evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
 import useAuth from "helpers/api/auth";
 import styles from "styles/views/question.create.module.scss";
@@ -30,7 +30,7 @@ requests.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-var stompClient = null;
+//var stompClient = null;
 
 // eslint-disable-next-line no-empty-pattern
 const QuestionDetail = ({}) => {
@@ -41,7 +41,7 @@ const QuestionDetail = ({}) => {
   const [article, setArticle] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [answerCount, setAnswerCount] = useState(null);
-  const [user, setUser] = useState({});
+  const [user] = useState({});
   const [seletedLanguage, setSeletedLanguage] = useState("en");
   const location = useLocation();
   const [originalArticle, setOriginalArticle] = useState(null);
@@ -71,7 +71,7 @@ const QuestionDetail = ({}) => {
       {},
       function () {
         stompClient.subscribe("/topic/getQuestionById/" + id, function (msg) {
-          let body = JSON.parse(msg.body);
+          //let body = JSON.parse(msg.body);
           let destination = msg.headers.destination;
           let parts = destination.split("/");
           let lastNumber = parts[parts.length - 1];
@@ -211,16 +211,16 @@ useEffect(() => {
   };
 
 
-    const handleChange = values => {
-        getSomeAnswerNew({
-            pageIndex: values,
-            questionID: id
-        }).then(response => {
-            if (response) {
-                setAnswers(response);
-            }
-        });
-    };
+    // const handleChange = values => {
+    //     getSomeAnswerNew({
+    //         pageIndex: values,
+    //         questionID: id
+    //     }).then(response => {
+    //         if (response) {
+    //             setAnswers(response);
+    //         }
+    //     });
+    // };
 
     const [sortByVoteCount, setSortByVoteCount] = useState(true);
     //const [sortedAnswers, setSortedAnswers] = useState([]);
