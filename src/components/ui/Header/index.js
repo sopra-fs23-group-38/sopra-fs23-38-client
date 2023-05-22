@@ -1,11 +1,12 @@
-import { Avatar, Badge,Button, Col, Dropdown, Row, Popover} from "antd";
+import { Avatar, Badge, Button, Col, Dropdown, Popover, Row } from "antd";
 import { useEffect, useState } from "react";
 import {
+  AlertTwoTone,
   SearchOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import styles from "./header.module.scss";
-import { cleanHasNew} from "helpers/api/user";
+import { cleanHasNew, getHasNew } from "helpers/api/user";
 import Cookies from "js-cookie";
 import { useHistory } from "react-router-dom";
 import SockJS from "sockjs-client";
@@ -102,35 +103,31 @@ const Header = () => {
   }
 
   return (
-      <div className={styles.header}>
-        <Row>
-          <Col span={4}>
-            <div className={styles.log}>
-              <span className={styles.logo}>UZH IFI Forum</span>
-            </div>
-          </Col>
-          <Col span={12}>
-            <div style={{ textAlign: "center" }}>
-    <span style={{ fontSize: "20px", fontWeight: "bold", color: "#1890ff" }}>
-      An online Q&A platform for UZH IFI’s study and life!
-    </span>
-            </div>
-          </Col>
-          <Col span={8}>
-            <Row justify="end">
-              <Button
-                  style={{
-                    marginRight: "16px",
-                    backgroundColor: "#1890ff",
-                    color: "white",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    padding: "5px 10px"
-                  }}
-                  shape="circle"
-                  icon={<SearchOutlined />}
-                  onClick={handleSearch}
-              />
+    <div className={styles.header}>
+      <Row>
+        <Col span={2} offset={2}>
+          <div className={styles.log}>
+            <span className={styles.logo}>Group38</span>
+          </div>
+        </Col>
+        <Col span={14}>
+          <Button
+            onClick={() => handleClick("/")}
+            type={"text"}
+            style={{ color: "#000", fontSize: "16px" }}
+          >
+            Home
+          </Button>
+
+          {/*<Menu className={styles.menu} mode={"horizontal"} items={getMenu()} onClick={handleClick} />*/}
+        </Col>
+        <Col span={4} offset={2}>
+          <Button
+            style={{ marginRight: "16px" }}
+            shape="circle"
+            icon={<SearchOutlined />}
+            onClick={handleSearch}
+          />
           {isLogin ? (
             <Dropdown
               menu={{
@@ -140,6 +137,7 @@ const Header = () => {
               arrow={{
                 pointAtCenter: true,
               }}
+              offset={[50, 0]}
             >
               {/*{hasNew ? (*/}
               {/*  <Avatar icon={<AlertTwoTone />} />*/}
@@ -166,7 +164,7 @@ const Header = () => {
                 arrow={{
                   pointAtCenter: true,
                 }}
-                offset={[10,20]}
+                offset={[10, 20]}
               >
                 {
                   hasNew > 0 ?
@@ -194,12 +192,10 @@ const Header = () => {
               Login / Register
             </Button>
           )}
-            </Row>
         </Col>
       </Row>
     </div>
   );
 };
-
 
 export default Header;

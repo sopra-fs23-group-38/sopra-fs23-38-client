@@ -1,7 +1,9 @@
 import styles from "./content.module.scss";
-import { Card, Col, Image, Row } from "antd";
+import { Button, Card, Col, Image, Row } from "antd";
 import moment from "moment";
+//import {translate} from "helpers/api/translator";
 const Content = ({ article }) => {
+    console.log(article);
 
     return (
         <div className={styles.content}>
