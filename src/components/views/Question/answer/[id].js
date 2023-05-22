@@ -49,7 +49,7 @@ const AnswerComments = () => {
     //const [commentcount,setCommentcount] = useState(0);
 
     useEffect(() => {
-        const newSocket = new SockJS("http://localhost:8080/my-websocket");
+        const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
         stompClient = over(newSocket);
         stompClient.connect({}, function() {
             stompClient.subscribe("/topic/getAnswerById/"+id, function(msg) {
@@ -71,7 +71,7 @@ const AnswerComments = () => {
             message.error("Web socket Interrupted");
             setTimeout(() => {
                 console.log("Attempting to reconnect...");
-                const newSocket = new SockJS("http://localhost:8080/my-websocket");
+                const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
                 stompClient = over(newSocket);
             }, 3000);
         };

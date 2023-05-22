@@ -38,7 +38,7 @@ const Index = () => {
     setTimeout(() => {
       console.log("Attempting to reconnect...");
       setSocket(null);
-      const newSocket = new SockJS("http://localhost:8080/my-websocket");
+      const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
       newStompClient = over(newSocket);
       setSocket(newStompClient);
     }, 3000);
@@ -49,7 +49,7 @@ const Index = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
 
     const connectToWebSocket = () => {
-      const newSocket = new SockJS("http://localhost:8080/my-websocket");
+      const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
       newStompClient = over(newSocket);
 
       // setSocket(newStompClient);

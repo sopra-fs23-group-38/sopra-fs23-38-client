@@ -82,12 +82,12 @@ const QuestionDetail = ({}) => {
       message.error("Web socket Interrupted");
       setTimeout(() => {
         console.log("Attempting to reconnect...");
-        const newSocket = new SockJS("http://localhost:8080/my-websocket");
+        const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
         stompClient = over(newSocket);
       }, 3000);
     };
 
-    const newSocket = new SockJS("http://localhost:8080/my-websocket");
+    const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
     stompClient = over(newSocket);
     stompClient.connect(
       {},

@@ -20,7 +20,7 @@ const Center = () => {
 
 
     useEffect(() => {
-        const newSocket = new SockJS("http://localhost:8080/my-websocket");
+        const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
         // let stompClient;
         stompClient = over(newSocket);
         setuserId(parseInt(window.location.href.split('/').pop().substring(1)) / 3)

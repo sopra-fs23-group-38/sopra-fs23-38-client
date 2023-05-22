@@ -27,7 +27,7 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-      var newSocket = new SockJS("http://localhost:8080/my-websocket");
+      var newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
       stompClient = over(newSocket);
       stompClient.connect({}, connectSuccess, connectError);
     }, []);
