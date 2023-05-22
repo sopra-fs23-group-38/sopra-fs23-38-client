@@ -76,7 +76,13 @@ const Chat = () => {
           <div className={styles.main}>
               <Card title={'Chat With Other Users!'} style={{ width: '50%', maxWidth: '756px' }}>
                   <div id={'container'} style={{ maxHeight: '512px', overflowY: 'scroll' }}>
-                      {messages.map((message) => (
+                      
+                      {messages.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '16px' }}>
+                          No messages yet. Start the conversation!
+                        </div>
+                      ) : (
+                      messages.map((message) => (
                         <div
                           key={message.id}
                           style={{
