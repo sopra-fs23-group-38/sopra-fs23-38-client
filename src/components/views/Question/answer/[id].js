@@ -41,7 +41,7 @@ const AnswerComments = () => {
     const [answer, setAnswer] = useState();
     const [comments, setComments] = useState([]);
     //const [IsHuifu, setIsHuifu] = useState(false)
-    const [cont, setCont] = useState("")
+    //const [cont, setCont] = useState("")
     //const [commentid, setCommentid] = useState()
     const formRef = useRef(null);
     const [parentId, setParentId] = useState(null);

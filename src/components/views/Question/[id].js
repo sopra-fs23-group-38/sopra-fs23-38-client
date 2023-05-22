@@ -26,7 +26,7 @@ import {
 } from "@ant-design/icons";
 
 // import { CommentOutlined, LikeTwoTone } from "@ant-design/icons";
-import { getSomeAnswerNew, evaluate } from "helpers/api/answer";
+import {  evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
 import useAuth from "helpers/api/auth";
 import styles from "styles/views/question.create.module.scss";
