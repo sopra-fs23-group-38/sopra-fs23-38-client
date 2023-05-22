@@ -24,7 +24,7 @@ const Chat = () => {
         console.log(fromUserId,toUserId)
         const cUser = JSON.parse(localStorage.getItem("user"));
         setUser(cUser);
-        var newSocket = new SockJS("http://localhost:8080/my-websocket");
+        var newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
         stompClient = over(newSocket);
         stompClient.connect({}, function () {
             stompClient.subscribe(`/topic/messages/${fromUserId},${toUserId}`, function (msg) {
