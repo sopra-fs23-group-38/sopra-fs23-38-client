@@ -38,26 +38,6 @@
     .hover:hover {
       cursor: pointer;
     }
-
-    .selectTag {
-      .ant-select-selector {
-          background-color: #e0e0e0;
-          color: #01005F;
-      }
-  
-      .ant-select-dropdown {
-          .ant-select-item-option {
-              &:hover {
-                  background-color: #d0d0d0;
-              }
-  
-              &.ant-select-item-option-selected {
-                  background-color: #b0b0b0;
-                  color: #01005F;
-              }
-          }
-      }
-    }
   }
 }
 
