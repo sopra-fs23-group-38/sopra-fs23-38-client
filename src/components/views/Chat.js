@@ -146,7 +146,7 @@ const Chat = () => {
 
 
 
-                      ))}
+                      )))}
                       <Divider />
                       <div ref={messagesEndRef} />
                   </div>
