@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {deleteQuestion, getQuestionsAskedBy, updateQuestion} from "helpers/api/question";
 import {deleteAnswer, getAnswersWriteBy, updateAnswer} from "helpers/api/answer";
 import { deleteComment, getCommentsBy, updateComment } from "helpers/api/comment";
-import {listNotifications} from "helpers/api//notification";
+//import {listNotifications} from "helpers/api//notification";
 import { Link, useHistory } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { over } from "stompjs";

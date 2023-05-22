@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect } from "react";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import moment from "moment/moment";
@@ -9,18 +9,18 @@ import {
   Divider,
   Image,
   message,
-  Pagination,
+  
   Row,
   Dropdown,
   Menu,
-  Space,
+  
 } from "antd";
 import {
   CommentOutlined,
   LikeTwoTone,
   TranslationOutlined,
   FastBackwardOutlined,
-  SortAscendingOutlined,
+ 
   DownOutlined,
   DislikeTwoTone,
 } from "@ant-design/icons";
@@ -34,7 +34,7 @@ import Cookies from "js-cookie";
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
 const requests = axios.create({
-  baseURL: "http://localhost:8080", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
+  baseURL: "https://sopra-fs23-group-38-server.oa.r.appspot.com/", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
   withCredentials: true,
   // baseURL: process.env.API_HOST // Change to your desired host and port
 });
@@ -52,7 +52,7 @@ requests.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-var stompClient = null;
+//var stompClient = null;
 
 // eslint-disable-next-line no-empty-pattern
 const QuestionDetail = ({}) => {
@@ -63,7 +63,7 @@ const QuestionDetail = ({}) => {
   const [article, setArticle] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [answerCount, setAnswerCount] = useState(null);
-  const [user, setUser] = useState({});
+  const [user] = useState({});
   const [seletedLanguage, setSeletedLanguage] = useState("en");
   const location = useLocation();
   const [originalArticle, setOriginalArticle] = useState(null);
@@ -93,7 +93,7 @@ const QuestionDetail = ({}) => {
       {},
       function () {
         stompClient.subscribe("/topic/getQuestionById/" + id, function (msg) {
-          let body = JSON.parse(msg.body);
+          //let body = JSON.parse(msg.body);
           let destination = msg.headers.destination;
           let parts = destination.split("/");
           let lastNumber = parts[parts.length - 1];
@@ -235,25 +235,25 @@ useEffect(() => {
     }
   };
 
-  const handleChange = (values) => {
-    getSomeAnswerNew({
-      pageIndex: values,
-      questionID: id,
-    }).then((response) => {
-      if (response) {
-        // setAnswers(response);
-        // const url = new URL(window.location);
-        // const anchor = url.hash.replace("#", "");
-        // if (anchor) {
-        //     // If there is, push the new page number and the anchor to the history
-        //     router.push(`/question/${id}?page=${values}#${anchor}`);
-        // } else {
-        //     // If there is not, push the new page number only
-        //     router.push(`/question/${id}?page=${values}`);
-        // }
-      }
-    });
-  };
+  // const handleChange = (values) => {
+  //   getSomeAnswerNew({
+  //     pageIndex: values,
+  //     questionID: id,
+  //   }).then((response) => {
+  //     if (response) {
+  //       // setAnswers(response);
+  //       // const url = new URL(window.location);
+  //       // const anchor = url.hash.replace("#", "");
+  //       // if (anchor) {
+  //       //     // If there is, push the new page number and the anchor to the history
+  //       //     router.push(`/question/${id}?page=${values}#${anchor}`);
+  //       // } else {
+  //       //     // If there is not, push the new page number only
+  //       //     router.push(`/question/${id}?page=${values}`);
+  //       // }
+  //     }
+  //   });
+  // };
   const [sortByVoteCount, setSortByVoteCount] = useState(true);
   // const [sortedAnswers, setSortedAnswers] = useState([]);
   useEffect(() => {
@@ -286,12 +286,12 @@ useEffect(() => {
     </Menu>
   );
 
-  const menu = (
-    <Menu onClick={handleSortByVoteCount}>
-      <Menu.Item key="1">vote count</Menu.Item>
-      <Menu.Item key="2">chronic order</Menu.Item>
-    </Menu>
-  );
+  // const menu = (
+  //   <Menu onClick={handleSortByVoteCount}>
+  //     <Menu.Item key="1">vote count</Menu.Item>
+  //     <Menu.Item key="2">chronic order</Menu.Item>
+  //   </Menu>
+  // );
 
   const languageLabels = {
     en: "English",
