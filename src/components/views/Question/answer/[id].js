@@ -1,5 +1,6 @@
 import styles from "styles/views/question.create.module.scss";
-import { Button, Card, Col, Divider, Form, Image, Input, message, Row, List, Collapse} from "antd";
+import { Button, Card, Col, Divider, Form, Image, Input, message, Row, List, Collapse, Avatar, Modal } from "antd";
+
 import React, { useEffect, useState,useRef } from "react";
 import { getTopComments, insertComment } from "helpers/api/comment";
 import axios from "axios";
@@ -14,7 +15,7 @@ import { over } from "stompjs";
 const { Panel } = Collapse;
 
 const requests = axios.create({
-    baseURL: "http://localhost:8080",//"https://sopra-fs23-group-38-server.oa.r.appspot.com/", // Change to your desired host and port
+    baseURL: "http://localhost:8080",//process.env.API_HOST, // Change to your desired host and port
 });
 requests.interceptors.request.use(
   (config) => {
@@ -39,13 +40,13 @@ const AnswerComments = () => {
     const [form] = Form.useForm();
     const [answer, setAnswer] = useState();
     const [comments, setComments] = useState([]);
-    //const [IsHuifu, setIsHuifu] = useState(false)
-    //const [cont, setCont] = useState("")
-    //const [commentid, setCommentid] = useState()
+    const [IsHuifu, setIsHuifu] = useState(false)
+    const [cont, setCont] = useState("")
+    const [commentid, setCommentid] = useState()
     const formRef = useRef(null);
     const [parentId, setParentId] = useState(null);
     const [placeholder, setPlaceholder] = useState("Type your comment here:");
-    //const [commentcount,setCommentcount] = useState(0);
+    const [commentcount,setCommentcount] = useState(0);
 
     useEffect(() => {
         const newSocket = new SockJS("http://localhost:8080/my-websocket");
@@ -75,7 +76,7 @@ const AnswerComments = () => {
             }, 3000);
         };
     }, [id]);
-
+    
     useEffect(() => {
         const timer = setTimeout(() => {
             console.log("00000")
@@ -138,6 +139,9 @@ const AnswerComments = () => {
     const handleBack = () => {
         router.goBack();
     };
+
+
+
 
 
     const defaultKeys = comments.map((_, index) => String(index));

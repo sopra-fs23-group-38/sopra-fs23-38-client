@@ -29,13 +29,13 @@ function Register() {
     const generateAvatars = () => {
         let seeds = ['Samantha', 'Callie', 'Garfield', 'Abby', 'Buster', 'Jack', 'Angel', 'Molly', 'Whiskers', 'Cookie', 'Callie', 'Annie', 'Sassy', 'Kiki', 'Mittens', 'Trouble', 'Bubba', 'Jasper', 'Dusty', 'Cuddles', 'Bear', 'Midnight', 'Bailey', 'Daisy', 'Scooter'];
         const newAvatars = [];
-
+    
         // Shuffle seeds array
         for (let i = seeds.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [seeds[i], seeds[j]] = [seeds[j], seeds[i]];
         }
-
+    
         for(let i=0; i<5; i++) {
             const randomSeed = seeds[i]; // Get a seed from the shuffled array
             newAvatars.push({
@@ -45,9 +45,9 @@ function Register() {
         }
         setAvatars(newAvatars);
     };
-
-
-
+    
+    
+    
     const handleAvatarClick = (avatar) => {
         setSelectedAvatar(avatar.seed); // Now storing the seed as the selected avatar
         form.setFieldsValue({
@@ -55,7 +55,7 @@ function Register() {
         });
         console.log("Selected avatar: ", avatar.seed);
     };
-
+    
     const handlePasswordConfirm = (rule, value, callback) => {
         const password = form.getFieldValue('password');
 

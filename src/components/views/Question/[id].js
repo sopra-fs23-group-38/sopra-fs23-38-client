@@ -1,10 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import moment from "moment/moment";
-import { Button, Card, Col, Divider, Image, message, Row, Dropdown, Menu} from "antd";
-import { CommentOutlined, LikeTwoTone, TranslationOutlined, FastBackwardOutlined, SortAscendingOutlined, DownOutlined,  DislikeTwoTone,} from "@ant-design/icons";
-import { evaluate } from "helpers/api/answer";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Image,
+  message,
+  Pagination,
+  Row,
+  Dropdown,
+  Menu,
+  Space,
+} from "antd";
+import {
+  CommentOutlined,
+  LikeTwoTone,
+  TranslationOutlined,
+  FastBackwardOutlined,
+  SortAscendingOutlined,
+  DownOutlined,
+  DislikeTwoTone,
+} from "@ant-design/icons";
+
+// import { CommentOutlined, LikeTwoTone } from "@ant-design/icons";
+import { getSomeAnswerNew, evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
 import useAuth from "helpers/api/auth";
 import styles from "styles/views/question.create.module.scss";
@@ -12,9 +34,9 @@ import Cookies from "js-cookie";
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
 const requests = axios.create({
-    baseURL: "http://localhost:8080",//"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
-    withCredentials: true,
-    // baseURL: process.env.API_HOST // Change to your desired host and port
+  baseURL: "http://localhost:8080", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
+  withCredentials: true,
+  // baseURL: process.env.API_HOST // Change to your desired host and port
 });
 requests.interceptors.request.use(
   (config) => {
@@ -30,7 +52,7 @@ requests.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-//var stompClient = null;
+var stompClient = null;
 
 // eslint-disable-next-line no-empty-pattern
 const QuestionDetail = ({}) => {
@@ -41,7 +63,7 @@ const QuestionDetail = ({}) => {
   const [article, setArticle] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [answerCount, setAnswerCount] = useState(null);
-  const [user] = useState({});
+  const [user, setUser] = useState({});
   const [seletedLanguage, setSeletedLanguage] = useState("en");
   const location = useLocation();
   const [originalArticle, setOriginalArticle] = useState(null);
@@ -71,7 +93,7 @@ const QuestionDetail = ({}) => {
       {},
       function () {
         stompClient.subscribe("/topic/getQuestionById/" + id, function (msg) {
-          //let body = JSON.parse(msg.body);
+          let body = JSON.parse(msg.body);
           let destination = msg.headers.destination;
           let parts = destination.split("/");
           let lastNumber = parts[parts.length - 1];
@@ -98,7 +120,7 @@ const QuestionDetail = ({}) => {
 
     setStompClient(stompClient);
 }, []);
-
+ 
 
 useEffect(() => {
   if (id !== undefined && id !== "undefined" && stompClient) {
@@ -177,26 +199,29 @@ useEffect(() => {
     message.info("Thumb down successfully");
   };
 
-    const toggleTrans = async () => {
-        if (article.question.title !== originalArticle.question.title) {
-            setArticle(originalArticle);
-            console.log("after trans original article", originalArticle);
-            console.log("after trans article", article);
-            setIsTrans(false);
-        } else {
-            try {
-                console.log("before original", originalArticle);
-                console.log("before article", article);
-                const copiedArticle = JSON.parse(JSON.stringify(article)); // Perform deep copy
-                console.log("after set original article", originalArticle);
-                const response1 = await translate({
-                    content: copiedArticle.question.title,
-                    targetLanguage: seletedLanguage,
-                });
-                const response2 = await translate({
-                    content: copiedArticle.question.description,
-                    targetLanguage: seletedLanguage,
-                });
+  const toggleTrans = async () => {
+    console.log(
+      "123123123" + article.question.title + originalArticle.question.title
+    );
+    if (article.question.title !== originalArticle.question.title) {
+      setArticle(originalArticle);
+      console.log("after trans original article", originalArticle);
+      console.log("after trans article", article);
+      setIsTrans(false);
+    } else {
+      try {
+        console.log("before original", originalArticle);
+        console.log("before article", article);
+        const copiedArticle = JSON.parse(JSON.stringify(article)); // Perform deep copy
+        console.log("after set original article", originalArticle);
+        const response1 = await translate({
+          content: copiedArticle.question.title,
+          targetLanguage: seletedLanguage,
+        });
+        const response2 = await translate({
+          content: copiedArticle.question.description,
+          targetLanguage: seletedLanguage,
+        });
 
         const newArticle = { ...copiedArticle };
         newArticle.question.title = response1;
@@ -210,63 +235,71 @@ useEffect(() => {
     }
   };
 
+  const handleChange = (values) => {
+    getSomeAnswerNew({
+      pageIndex: values,
+      questionID: id,
+    }).then((response) => {
+      if (response) {
+        // setAnswers(response);
+        // const url = new URL(window.location);
+        // const anchor = url.hash.replace("#", "");
+        // if (anchor) {
+        //     // If there is, push the new page number and the anchor to the history
+        //     router.push(`/question/${id}?page=${values}#${anchor}`);
+        // } else {
+        //     // If there is not, push the new page number only
+        //     router.push(`/question/${id}?page=${values}`);
+        // }
+      }
+    });
+  };
+  const [sortByVoteCount, setSortByVoteCount] = useState(true);
+  // const [sortedAnswers, setSortedAnswers] = useState([]);
+  useEffect(() => {
+    console.log("11111" + sortByVoteCount);
+    // if (sortByVoteCount){
+    console.log("有没有点赞");
+    const sorted = sortByVoteCount
+      ? [...answers].sort((a, b) => b.answer.vote_count - a.answer.vote_count)
+      : [...answers].sort(
+          (a, b) =>
+            new Date(b.answer.change_time) - new Date(a.answer.change_time)
+        );
+    // setAnswers(sorted)
+    setSortedAnswers(sorted);
+  }, [sortByVoteCount, answers]);
 
-    // const handleChange = values => {
-    //     getSomeAnswerNew({
-    //         pageIndex: values,
-    //         questionID: id
-    //     }).then(response => {
-    //         if (response) {
-    //             setAnswers(response);
-    //         }
-    //     });
-    // };
+  const handleSortByVoteCount = () => {
+    setSortByVoteCount(!sortByVoteCount);
+  };
 
-    const [sortByVoteCount, setSortByVoteCount] = useState(true);
-    //const [sortedAnswers, setSortedAnswers] = useState([]);
-    useEffect(() => {
-        const sorted = sortByVoteCount
-          ? [...answers].sort((a, b) => b.answer.vote_count - a.answer.vote_count)
-          : [...answers].sort(
-            (a, b) =>
-              new Date(b.answer.change_time) - new Date(a.answer.change_time)
-          );
+  //const {Option} = Select;
 
-        setSortedAnswers(sorted);
-    }, [sortByVoteCount, answers]);
+  const TransMenu = (
+    <Menu onClick={handleLanguageChange}>
+      <Menu.Item key="en">English</Menu.Item>
+      <Menu.Item key="fr">French</Menu.Item>
+      <Menu.Item key="es">Spanish</Menu.Item>
+      <Menu.Item key="de">German</Menu.Item>
+      <Menu.Item key="zh">Chinese</Menu.Item>
+    </Menu>
+  );
 
-    const handleSortByVoteCount = () => {
-        setSortByVoteCount(!sortByVoteCount);
-    };
+  const menu = (
+    <Menu onClick={handleSortByVoteCount}>
+      <Menu.Item key="1">vote count</Menu.Item>
+      <Menu.Item key="2">chronic order</Menu.Item>
+    </Menu>
+  );
 
-    //const {Option} = Select;
-
-    const TransMenu = (
-        <Menu onClick={handleLanguageChange}>
-            <Menu.Item key="en">English</Menu.Item>
-            <Menu.Item key="fr">French</Menu.Item>
-            <Menu.Item key="es">Spanish</Menu.Item>
-            <Menu.Item key="de">German</Menu.Item>
-            <Menu.Item key="zh">Chinese</Menu.Item>
-        </Menu>
-    );
-
-
-    const menu = (
-      <Menu onClick={handleSortByVoteCount}>
-          <Menu.Item key="1">chronological order</Menu.Item>
-          <Menu.Item key="2">vote count</Menu.Item>
-      </Menu>
-    );
-
-    const languageLabels = {
-        en: "English",
-        fr: "French",
-        es: "Spanish",
-        de: "German",
-        zh: "Chinese"
-    };
-
+  const languageLabels = {
+    en: "English",
+    fr: "French",
+    es: "Spanish",
+    de: "German",
+    zh: "Chinese",
+  };
 
   return (
     <div className={styles.container}>
@@ -375,15 +408,12 @@ useEffect(() => {
 
             <p style={{ fontWeight: 600, fontSize: "16px" }}></p>
 
+            <button onClick={handleSortByVoteCount}>
+              {sortByVoteCount
+                ? "Sort by chronological order"
+                : "Sort by vote count"}
+            </button>
 
-            <Dropdown overlay={menu}>
-              <Button
-                style={{ backgroundColor: "#2ca1c4", marginTop: "16px" }}
-                icon = {<SortAscendingOutlined />}
-              >
-                Sort by
-              </Button>
-            </Dropdown>
             <p style={{ fontWeight: 600, fontSize: "16px" }}>
               {answerCount} Answers
             </p>

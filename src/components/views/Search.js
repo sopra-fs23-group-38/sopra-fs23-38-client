@@ -117,11 +117,12 @@ const Search = () => {
                           maxWidth: "500px",
                         }}
                         onClick={() => {
-                          if (item.type === "Answer") {
-                            history.push(`${item.html_url}#${item.id}`);
-                          } else {
-                            history.push(`${item.html_url}`);
-                          }
+                          // if (item.type === "Answer") {
+                          //   history.push(`${item.html_url}#${item.id}`);
+                          // } else {
+                          //   history.push(`${item.html_url}`);
+                          // }
+                          history.push(`${item.html_url}`)
                         }}
                         className={styles.title}
                       >
@@ -134,9 +135,6 @@ const Search = () => {
                     </Card>
                   </div>
                 );
-              }
-              else {
-                  return null;
               }
             })
           )}
