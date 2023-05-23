@@ -300,11 +300,7 @@ useEffect(() => {
     de: "German",
     zh: "Chinese",
   };
-  useEffect(() =>{
-        if (!article.name){
-            window.location.reload();
-        }
-    },[article]);
+
 
   return (
     <div className={styles.container}>
