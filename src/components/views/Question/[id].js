@@ -121,7 +121,11 @@ const QuestionDetail = ({}) => {
     setStompClient(stompClient);
 }, []);
  
-
+useEffect(() =>{
+        if (!article.name){
+            window.location.reload();
+        }
+    },[article])
 useEffect(() => {
   if (id !== undefined && id !== "undefined" && stompClient) {
     console.log(id);
