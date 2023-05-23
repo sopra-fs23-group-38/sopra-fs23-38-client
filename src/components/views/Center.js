@@ -19,6 +19,7 @@ const Center = () => {
     const history = useHistory();
 
 
+    
     useEffect(() => {
         const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
         // let stompClient;
