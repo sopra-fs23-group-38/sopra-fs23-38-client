@@ -13,7 +13,6 @@ const Chat = () => {
     const [form] = Form.useForm();
     const [messages, setMessages] = useState([]);
     const [user, setUser] = useState({});
-    const [setSocket] = useState(null);
     let { fromUserId, toUserId } = location.state || {};
     if (!fromUserId){
         const urlParams = new URLSearchParams(window.location.search);
@@ -35,7 +34,6 @@ const Chat = () => {
             })
             stompClient.send("/app/list/" + fromUserId + "/" + toUserId, {});
         }, connectError);
-        setSocket(stompClient);
         // eslint-disable-next-line react-hooks/rules-of-hooks
 
 
