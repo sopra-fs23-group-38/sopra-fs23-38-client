@@ -64,6 +64,7 @@ const Answer = ({ question }) => {
     console.log(article)
     const onFinish = (values) => {
         values['which_question'] = id
+        values["content"] = encodeURIComponent(values["content"]);
         // eslint-disable-next-line no-unused-vars
         const response = requests.post(`/answer/createAnswer?questionID=${id}&content=${values['content']}`).then(
             (
