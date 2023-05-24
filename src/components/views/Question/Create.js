@@ -10,6 +10,9 @@ const Create = () => {
     const handleCreate = (values) => {
         if (!values.detail) {
             values["detail"] = "";
+        }else{
+            values["title"] = encodeURIComponent(values["title"])
+            values["detail"] = encodeURIComponent(values["detail"])
         }
 
         newQuestion(values).then((response) => {
