@@ -9,24 +9,21 @@ import {
   Divider,
   Image,
   message,
-  
   Row,
   Dropdown,
   Menu,
-  
 } from "antd";
 import {
   CommentOutlined,
   LikeTwoTone,
   TranslationOutlined,
   FastBackwardOutlined,
- 
   DownOutlined,
   DislikeTwoTone,
 } from "@ant-design/icons";
 
 // import { CommentOutlined, LikeTwoTone } from "@ant-design/icons";
-import {  evaluate } from "helpers/api/answer";
+import { evaluate } from "helpers/api/answer";
 import { translate } from "helpers/api/translator";
 import useAuth from "helpers/api/auth";
 import styles from "styles/views/question.create.module.scss";
@@ -34,7 +31,7 @@ import Cookies from "js-cookie";
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
 const requests = axios.create({
-  baseURL: "https://sopra-fs23-group-38-server.oa.r.appspot.com/", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
+  baseURL: "http://localhost:8080", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
   withCredentials: true,
   // baseURL: process.env.API_HOST // Change to your desired host and port
 });
@@ -52,7 +49,6 @@ requests.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-//var stompClient = null;
 
 // eslint-disable-next-line no-empty-pattern
 const QuestionDetail = ({}) => {
@@ -65,14 +61,16 @@ const QuestionDetail = ({}) => {
   const [answerCount, setAnswerCount] = useState(null);
   const [user] = useState({});
   const [seletedLanguage, setSeletedLanguage] = useState("en");
-  const location = useLocation();
-  const [originalArticle, setOriginalArticle] = useState(null);
-  const [areAnswersRendered, setAreAnswersRendered] = useState(false);
 
+  const [originalArticle, setOriginalArticle] = useState(null);
+  const [ setAreAnswersRendered] = useState(false);
+  
   const [sortedAnswers, setSortedAnswers] = useState([]);
   const [stompClient, setStompClient] = useState(null);
   const [shownAnswersCount, setShownAnswersCount] = useState(5);
+  const [translatedAnswers, setTranslatedAnswers] = useState({});
 
+  const [originalAnswers, setOriginalAnswers] = useState([...answers]); 
   useEffect(() => {
 
     let stompClient;
@@ -82,18 +80,18 @@ const QuestionDetail = ({}) => {
       message.error("Web socket Interrupted");
       setTimeout(() => {
         console.log("Attempting to reconnect...");
-        const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
+        const newSocket = new SockJS("http://localhost:8080/my-websocket");
         stompClient = over(newSocket);
       }, 3000);
     };
 
-    const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
+    const newSocket = new SockJS("http://localhost:8080/my-websocket");
     stompClient = over(newSocket);
     stompClient.connect(
       {},
       function () {
         stompClient.subscribe("/topic/getQuestionById/" + id, function (msg) {
-          //let body = JSON.parse(msg.body);
+          
           let destination = msg.headers.destination;
           let parts = destination.split("/");
           let lastNumber = parts[parts.length - 1];
@@ -102,6 +100,7 @@ const QuestionDetail = ({}) => {
           if (lastNumber === id) {
             let body = JSON.parse(msg.body);
             setArticle(body);
+            //console.log(article);
             setOriginalArticle(body);
             setAnswerCount(body?.answerCount);
           }
@@ -110,9 +109,10 @@ const QuestionDetail = ({}) => {
         stompClient.subscribe("/topic/getAllAnstoOneQ/" + id, function (msg) {
           let body = JSON.parse(msg.body);
           setAnswers(body);
-          console.log(body);
+          setOriginalAnswers(JSON.parse(JSON.stringify(body))); // deep copy
+          
           setAreAnswersRendered(false);
-          console.log(areAnswersRendered);
+          
         });
       },
       connectError
@@ -141,25 +141,6 @@ useEffect(() => {
   }
 }, [id, stompClient]);
 
-  useEffect(() => {
-    if (answers && answers.length > 0) {
-      console.log("22222");
-      setAreAnswersRendered(true); // set to true when the answers components have been rendered
-    }
-  }, [answers]);
-
-  useEffect(() => {
-    if (areAnswersRendered && location.hash) {
-      console.log("11111");
-      const element = document.getElementById(location.hash.slice(1));
-      if (element) {
-        element.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }
-    }
-  }, [areAnswersRendered, location.hash]);
 
   const handleEvaluate = async (id, voteValue) => {
     try {
@@ -235,31 +216,42 @@ useEffect(() => {
     }
   };
 
-  // const handleChange = (values) => {
-  //   getSomeAnswerNew({
-  //     pageIndex: values,
-  //     questionID: id,
-  //   }).then((response) => {
-  //     if (response) {
-  //       // setAnswers(response);
-  //       // const url = new URL(window.location);
-  //       // const anchor = url.hash.replace("#", "");
-  //       // if (anchor) {
-  //       //     // If there is, push the new page number and the anchor to the history
-  //       //     router.push(`/question/${id}?page=${values}#${anchor}`);
-  //       // } else {
-  //       //     // If there is not, push the new page number only
-  //       //     router.push(`/question/${id}?page=${values}`);
-  //       // }
-  //     }
-  //   });
-  // };
+
+const toggleTrans3 = async (answerId) => {
+  let currentTranslatedAnswers = {...translatedAnswers};
+  let copiedAnswers = [...answers];
+  let answerIndex = copiedAnswers.findIndex(answer => answer.answer.id === answerId);
+
+  if (currentTranslatedAnswers[answerId]) {
+    console.log("trans");
+    console.log(originalAnswers);
+    copiedAnswers[answerIndex] = JSON.parse(JSON.stringify(originalAnswers[answerIndex]));
+    console.log(copiedAnswers);
+    delete currentTranslatedAnswers[answerId];
+  } else {
+    try {
+      const response = await translate({
+        content: copiedAnswers[answerIndex].answer.content,
+        targetLanguage: seletedLanguage,
+      });
+
+      copiedAnswers[answerIndex].answer.content = response;
+      currentTranslatedAnswers[answerId] = true;
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+  }
+
+  setAnswers(copiedAnswers);
+  setTranslatedAnswers(currentTranslatedAnswers);
+};
+
+  
   const [sortByVoteCount, setSortByVoteCount] = useState(true);
   // const [sortedAnswers, setSortedAnswers] = useState([]);
   useEffect(() => {
-    console.log("11111" + sortByVoteCount);
-    // if (sortByVoteCount){
-    console.log("有没有点赞");
+    //console.log("11111" + sortByVoteCount);
+    
     const sorted = sortByVoteCount
       ? [...answers].sort((a, b) => b.answer.vote_count - a.answer.vote_count)
       : [...answers].sort(
@@ -286,12 +278,12 @@ useEffect(() => {
     </Menu>
   );
 
-  // const menu = (
-  //   <Menu onClick={handleSortByVoteCount}>
-  //     <Menu.Item key="1">vote count</Menu.Item>
-  //     <Menu.Item key="2">chronic order</Menu.Item>
-  //   </Menu>
-  // );
+  const menu = (
+    <Menu onClick={handleSortByVoteCount}>
+      <Menu.Item key="1">vote count</Menu.Item>
+      <Menu.Item key="2">chronic order</Menu.Item>
+    </Menu>
+  );
 
   const languageLabels = {
     en: "English",
@@ -300,7 +292,6 @@ useEffect(() => {
     de: "German",
     zh: "Chinese",
   };
-
 
   return (
     <div className={styles.container}>
@@ -418,7 +409,7 @@ useEffect(() => {
             <p style={{ fontWeight: 600, fontSize: "16px" }}>
               {answerCount} Answers
             </p>
-            {sortedAnswers.slice(0, shownAnswersCount).map((answer) => {
+            {sortedAnswers.slice(0, shownAnswersCount).map((answer,answerIndex) => {
               return (
                 <div id={answer.answer.id} key={answer.answer.id}>
                   <Row>
@@ -459,34 +450,51 @@ useEffect(() => {
                     </Col>
 
                     <Col span={18}>
-                      <div
-                        onClick={() => {
-                          router.push(`/question/answer/${answer.answer.id}`);
-                        }}
-                        className={styles.comment}
-                      >
-                        <p style={{ marginTop: "0px", wordWrap: "break-word", whiteSpace: "normal" }}>
-                          {answer.answer.content}
-                        </p>
-                        <p>
-                          <CommentOutlined />
-                          <span
-                            className={styles.date}
-                            style={{ marginLeft: "4px" }}
-                          >
-                            {answer.answer.comment_count} comments
-                          </span>
-                          <span
-                            className={styles.date}
-                            style={{ float: "right" }}
-                          >
-                            Posted on{" "}
-                            {moment(answer.answer.change_time).format("ll")}
-                          </span>
-                        </p>
-                      </div>
-                    </Col>
-
+                        <div
+                          className={styles.comment} style={{ cursor: 'default' }}
+                        >
+                          <p style={{ marginTop: "0px", wordWrap: "break-word", whiteSpace: "normal" }}>
+                            {answer.answer.content}
+                          </p>
+                          <div style={{ display: 'flex', justifyContent: 'space-between',cursor: 'pointer' }}>
+                            <div>
+                              <CommentOutlined onClick={() => {
+                            router.push(`/question/answer/${answer.answer.id}`);
+                          }} />
+                              <span
+                                className={styles.date}
+                                style={{ marginLeft: "4px" }}
+                              >
+                                {answer.answer.comment_count} comments
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                    <span
+                                      className={styles.date}
+                                    >
+                                      Posted on {moment(answer.answer.change_time).format("ll")}
+                                    </span>
+                                    <Button
+                                      style={{ 
+                                        backgroundColor: translatedAnswers[answer.answer.id] ? "#537494" : "#3B7AF5",
+                                        marginLeft: '10px', // Adjust this to control distance
+                                        width: '21px',
+                                        height: '21px',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                      }}
+                                      onClick={() => toggleTrans3(answer.answer.id)}
+                                      type="primary"
+                                      icon={<TranslationOutlined />}
+                                    ></Button>
+                                  </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Col> 
+                      
                     <Col style={{ display: 'flex', justifyContent: 'space-between'}}>
                       <div
                         className={styles.hover}
