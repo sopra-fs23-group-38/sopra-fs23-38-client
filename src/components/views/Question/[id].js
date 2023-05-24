@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useHistory, useLocation, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 import moment from "moment/moment";
 import {
@@ -275,13 +275,6 @@ const toggleTrans3 = async (answerId) => {
       <Menu.Item key="es">Spanish</Menu.Item>
       <Menu.Item key="de">German</Menu.Item>
       <Menu.Item key="zh">Chinese</Menu.Item>
-    </Menu>
-  );
-
-  const menu = (
-    <Menu onClick={handleSortByVoteCount}>
-      <Menu.Item key="1">vote count</Menu.Item>
-      <Menu.Item key="2">chronic order</Menu.Item>
     </Menu>
   );
 
