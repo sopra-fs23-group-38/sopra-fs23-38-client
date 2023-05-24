@@ -88,8 +88,7 @@ const Center = () => {
                     stompClient.send("/app/getHowManyQuestions/", {});
                     stompClient.send("/app/getAllQuestions/" + 1+"/", {});
                     console.log(id)
-                    stompClient.send("/app/getQuestionById", {}, JSON.stringify({ ID: id }));
-                    stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: id }));
+                    
 
                 }, 500);
                 setQuestions(prevState => {
@@ -149,8 +148,7 @@ const Center = () => {
                 setTimeout(() => {
                     // eslint-disable-next-line no-unused-expressions
                     stompClient.send("/app/getAllAnstoOneQ", {}, JSON.stringify({ pageIndex: 1, questionID: answer.questionId }));
-                    stompClient.send("/app/getAnswerById", {}, JSON.stringify({ ID: id }));
-                    stompClient.send("/app/getAllComments", {}, JSON.stringify({ ID: id }));
+                    
                 }, 500); // 延迟1秒
                 message.info('Success')
                 setAnswers(prevState => {
