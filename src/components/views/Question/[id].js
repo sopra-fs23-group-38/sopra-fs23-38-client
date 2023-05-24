@@ -31,7 +31,7 @@ import Cookies from "js-cookie";
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
 const requests = axios.create({
-  baseURL: "http://localhost:8080", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
+  baseURL: "https://sopra-fs23-group-38-server.oa.r.appspot.com/", //"https://sopra-fs23-group-38-server.oa.r.appspot.com/",
   withCredentials: true,
   // baseURL: process.env.API_HOST // Change to your desired host and port
 });
@@ -80,12 +80,12 @@ const QuestionDetail = ({}) => {
       message.error("Web socket Interrupted");
       setTimeout(() => {
         console.log("Attempting to reconnect...");
-        const newSocket = new SockJS("http://localhost:8080/my-websocket");
+        const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
         stompClient = over(newSocket);
       }, 3000);
     };
 
-    const newSocket = new SockJS("http://localhost:8080/my-websocket");
+    const newSocket = new SockJS("https://sopra-fs23-group-38-server.oa.r.appspot.com/my-websocket");
     stompClient = over(newSocket);
     stompClient.connect(
       {},
