@@ -43,7 +43,7 @@ function Login() {
                 name="username"
                 rules={[{ required: true, message: "please input your username." }]}
             >
-              <Input style={{ width: '240px' }} size={"large"} placeholder={"Username,No only number"} />
+              <Input style={{ width: '240px' }} size={"large"} placeholder={"Username"} />
             </Form.Item>
 
             <Form.Item
