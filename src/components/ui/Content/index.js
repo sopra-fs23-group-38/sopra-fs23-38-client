@@ -53,7 +53,7 @@ const Content = ({ article }) => {
                             {moment(article.createTime).format("ll")}
                         </p>
                     </Col>
-                </Row>
+                
                 </Row>
             </Card>
         </div>
