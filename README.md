@@ -1,13 +1,15 @@
-[//]: # '<p align="center">'
-[//]: # '  <img src="https://readme-typing-svg.demolab.com/?lines=Sopra+Group+20!;Guess+The+Country!&font=Fira%20Code¢er=true&width=600&height=80&duration=4000&pause=500" alt="Example Usage - README Typing SVG">'
-[//]: # "</p>"
-[//]: #
-[//]: # '<div align="center">'
-[//]: #
-[//]: # "[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-20_client&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=sopra-fs23-group-20_client)"
-[//]: # "[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-20_client&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=sopra-fs23-group-20_client)"
-[//]: #
-[//]: # "</div>"
+<p align="center">
+
+  <img src="https://readme-typing-svg.demolab.com?font=Noto+Sans+Simplified+Chinese&pause=1000&color=6F3BF5&center=true&width=435&lines=UZH+IFI+Q%26A+Forums;Sopra+Group+38" alt="Example Usage - README Typing SVG">
+
+</p>
+
+<div align="center">
+
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-38_sopra-fs23-38-server&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=sopra-fs23-group-38_sopra-fs23-38-server)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-38_sopra-fs23-38-server&metric=coverage)](https://sonarcloud.io/summary/new_code?id=sopra-fs23-group-38_sopra-fs23-38-server)
+
+</div>
 
 ## Introduction
 
@@ -16,6 +18,8 @@ This is an online and real-time Q&A platform based on UZH IFI's study and life, 
 The platform also has some social features, with tagging for specific questions and live chat between users, and we hope that everyone will share their daily routines to increase their social circle within UZH.
 
 This is a diagram of the functionality of our Web Application:
+
+![Introduction](img/overview.png)
 
 ## Technologies
 
