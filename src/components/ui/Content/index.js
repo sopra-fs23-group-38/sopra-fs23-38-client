@@ -1,6 +1,7 @@
 import styles from "./content.module.scss";
 import { Card, Col, Image, Row } from "antd";
 import moment from "moment";
+import Cookies from 'js-cookie';
 //import {translate} from "helpers/api/translator";
 const Content = ({ article }) => {
     console.log(article);
@@ -40,7 +41,11 @@ const Content = ({ article }) => {
                     <Col span={3}>
                         <span
                             onClick={() => {
-                                window.location.href = `/center/${`U${article.nameid * 3}`}`;
+                                if (!Cookies.get("token")) {
+                                    window.location.href = '/login';
+                                } else {
+                                    window.location.href = `/center/${`U${article.nameid * 3}`}`;
+                                }
                             }}
                             className={styles.name}>{article.name}</span>
 
@@ -48,6 +53,7 @@ const Content = ({ article }) => {
                             {moment(article.createTime).format("ll")}
                         </p>
                     </Col>
+                </Row>
                 </Row>
             </Card>
         </div>
