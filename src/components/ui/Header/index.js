@@ -71,8 +71,12 @@ const Header = () => {
 
   };
   const handleSearch = () => {
-    console.log(history);
-    window.location.href = "/search";
+    //console.log(history);
+    if (!Cookies.get("token")) {
+      window.location.href = '/login';
+    } else {
+      window.location.href = "/search";
+    }
   };
 
   const items = [
