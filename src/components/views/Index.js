@@ -480,41 +480,50 @@ const Index = () => {
             Increase your knowledge by reading new things and I will
           </p>
           <p className={styles.desc}>
-            share whatever I know for you, as long as I enjoy it
+            share whatever I know for you, as long as you enjoy it
           </p>
         </div>
 
         <Button
-          style={{ backgroundColor: "#6F3BF5" }}
+          style={{ backgroundColor: "#6F3BF5",marginBottom: '60px' }}
           onClick={handleClick}
           type={"primary"}
           size={"large"}
         >
           Create Question
         </Button>
-        <Button
-          onClick={handleSortByAnswerCount}
-          type={"primary"}
-          size={"small"}
-          style={{ margin: "16px 0" }}
-        >
-          {sortByAnswerCount ? "Sort by time" : "Sort by answer count"}
-        </Button>
-        <Select
-          style={{ marginLeft: "16px",width :'100px' }}
-          placeholder="Select a tag"
-          onChange={handleFilterByTag}
-          allowClear
-        >
-          <Option key="all" value="all">
-            All
-          </Option>
-          {tags.map((tag) => (
-            <Option key={tag} value={tag}>
-              {tag}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between', // This separates the button and dropdown horizontally
+            alignItems: 'center', // This aligns the button and dropdown vertically in the middle
+            marginBottom: '-50px'
+          }}>
+          <Button
+            onClick={handleSortByAnswerCount}
+            type={"primary"}
+            size={"small"}
+            style={{ margin: "16px 0", marginRight: "250px" }}
+          >
+            {sortByAnswerCount ? "Sort by time" : "Sort by answer count"}
+          </Button>
+          <Select
+            style={{ marginLeft: "250px", width: '100px' }}
+            placeholder="Select a tag"
+            onChange={handleFilterByTag}
+            allowClear
+          >
+            <Option key="all" value="all">
+              All
             </Option>
-          ))}
-        </Select>
+            {tags.map((tag) => (
+              <Option key={tag} value={tag}>
+                {tag}
+              </Option>
+            ))}
+          </Select>
+        </div>
+
         <div>
           {items &&
             items
