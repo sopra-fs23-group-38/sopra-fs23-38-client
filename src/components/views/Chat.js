@@ -120,7 +120,7 @@ const Chat = () => {
                         ))
                     )}
                     <Divider />
-                    <div ref={messagesEndRef} />
+                   
                 </div>
                 <div style={{ marginTop: '8px' }}>
                     <Form form={form} onFinish={sendMessage}>
