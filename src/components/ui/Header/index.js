@@ -13,7 +13,7 @@ import SockJS from "sockjs-client";
 import { over } from "stompjs";
 var stompClient = null;
 const Header = () => {
-  const history = useHistory();
+  
   const [isLogin, setIsLogin] = useState(false);
   const [hasNew, setHasNew] = useState(false);
 
