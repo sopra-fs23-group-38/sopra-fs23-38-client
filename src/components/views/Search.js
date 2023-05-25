@@ -104,34 +104,37 @@ const Search = () => {
             items.map((item) => {
               if (item.description !== "用户" && item.description !== "文章") {
                 return (
-                  <div key={item.id} className={styles.content}>
+                 <div key={item.id} className={styles.content}>
                     <Card
                       style={{ width: "756px", padding: 0 }}
                       bodyStyle={{ padding: "16px" }}
                     >
-                      <span
+                      <div
                         style={{
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          maxWidth: "500px",
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
                         }}
-                        onClick={() => {
-                          // if (item.type === "Answer") {
-                          //   history.push(`${item.html_url}#${item.id}`);
-                          // } else {
-                          //   history.push(`${item.html_url}`);
-                          // }
-                          history.push(`${item.html_url}`)
-                        }}
-                        className={styles.title}
                       >
-                        {item.name}
-                      </span>
+                        <span
+                          style={{
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: "500px",
+                          }}
+                          onClick={() => {
+                            history.push(`${item.html_url}`)
+                          }}
+                          className={styles.title}
+                        >
+                          {item.name}
+                        </span>
 
-                      <span style={{ float: "right", marginTop: "8px" }}>
-                        {item.type}
-                      </span>
+                        <span style={{ marginTop: "8px" }}>
+                          {item.type}
+                        </span>
+                      </div>
                     </Card>
                   </div>
                 );
