@@ -158,6 +158,6 @@ We want this application to be more than just a Q&A platform, but we want to use
 
 - **Hyeongkyun (Kaden) Kim** - [Github](https://github.com/hk-kaden-kim)
 
-## License(最后改)
+## License
 
-[Apache license 2.0](https://github.com/sopra-fs23-group-38/server/blob/6dc8281b0a876fa1d310626a704e0e4bfa08b86d/LICENSE)
+[MIT License](LICENSE)
