@@ -29,8 +29,11 @@ const Chat = () => {
         stompClient.connect({}, function () {
             stompClient.subscribe(`/topic/messages/${fromUserId},${toUserId}`, function (msg) {
                 let body = JSON.parse(msg.body)
-                setMessages(body)
-                console.log(body)
+                if (Array.isArray(body)) {
+                    setMessages(body);
+                } else {
+                    setMessages(prevMessages => [...prevMessages, body]);
+                }
             })
             stompClient.send("/app/list/" + fromUserId + "/" + toUserId, {});
         }, connectError);
@@ -47,10 +50,6 @@ const Chat = () => {
         // alert("Web socket Interrupted")
     }
 
-    const messagesEndRef = useRef(null);
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
 
     const sendMessage = (values) => {
         let { fromUserId, toUserId } = location.state || {};
@@ -70,107 +69,77 @@ const Chat = () => {
 
 
     return (
-      <div className={styles.container}>
-          <div className={styles.main}>
-              <Card title={'Chat With Other Users!'} style={{ width: '50%', maxWidth: '756px' }}>
-                  <div id={'container'} style={{ maxHeight: '512px', overflowY: 'scroll' }}>
-                      
-                      {messages.length === 0 ? (
+    <div className={styles.container}>
+        <div className={styles.main}>
+            <Card title={'Chat With Other Users!'} style={{ width: '50%', maxWidth: '756px' }}>
+                <div id={'container'} style={{ maxHeight: '512px', overflowY: 'scroll' }}>
+                    {messages.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '16px' }}>
-                          No messages yet. Start the conversation!
+                            No messages yet. Start the conversation!
                         </div>
-                      ) : (
-                      messages.map((message) => (
-                        <div
-                          key={message.id}
-                          style={{
-                              display: 'flex',
-                              justifyContent: message.fromUserId === user.id ? 'flex-end' : 'flex-start',
-                          }}
-                        >
-                            <div style={{ display: 'flex', marginBottom: '8px' }}>
-                                {message.fromUserId !== user.id && (
-                                  <div
-                                    style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        borderRadius: '50%',
-                                        overflow: 'hidden',
-                                        marginRight: '8px',
-                                    }}
-                                  >
-                                      <img
-                                        src={`https://api.dicebear.com/6.x/adventurer/svg?seed=${message.fromUserAvatar}`}
-                                        alt={'User avatar'}
-                                      />
-                                  </div>
-                                )}
+                    ) : (
+                        messages.map((message) => (
+                            <div
+                                key={message.id}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: message.fromUserId === user.id ? 'row-reverse' : 'row',
+                                    marginBottom: '8px',
+                                }}
+                            >
                                 <div
-                                  style={{
-                                      padding: '8px',
-                                      border: '1px solid #d9d9d9',
-                                      borderRadius: '6px',
-                                      height: '100%',
-                                      wordBreak: 'break-word',
-                                      maxWidth: '70%',
-                                      backgroundColor: message.fromUserId === user.id ? '#6F3BF5' : '#fff',
-                                      color: message.fromUserId === user.id ? '#fff' : '#000',
-                                      marginLeft: message.fromUserId === user.id ? '8px' : '0',
-                                      alignSelf: 'flex-end',
-                                  }}
-                                >
-                                    {message.content}
-                                </div>
-                                {message.fromUserId === user.id && (
-                                  <div
                                     style={{
                                         width: '32px',
                                         height: '32px',
                                         borderRadius: '50%',
                                         overflow: 'hidden',
-                                        marginLeft: '8px',
+                                        marginRight: message.fromUserId !== user.id ? '8px' : '0',
+                                        marginLeft: message.fromUserId === user.id ? '8px' : '0',
                                     }}
-                                  >
-                                      <img
+                                >
+                                    <img
                                         src={`https://api.dicebear.com/6.x/adventurer/svg?seed=${message.fromUserAvatar}`}
                                         alt={'User avatar'}
-                                      />
-                                  </div>
-                                )}
+                                    />
+                                </div>
+                                <div
+                                    style={{
+                                        padding: '8px',
+                                        border: '1px solid #d9d9d9',
+                                        borderRadius: '6px',
+                                        wordBreak: 'break-word',
+                                        maxWidth: '40ch',
+                                        backgroundColor: message.fromUserId === user.id ? '#6F3BF5' : '#fff',
+                                        color: message.fromUserId === user.id ? '#fff' : '#000',
+                                    }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: message.content.replace(/\n/g, '<br />')
+                                    }}
+                                />
                             </div>
+                        ))
+                    )}
+                    <Divider />
+                    <div ref={messagesEndRef} />
+                </div>
+                <div style={{ marginTop: '8px' }}>
+                    <Form form={form} onFinish={sendMessage}>
+                        <Form.Item style={{ marginBottom: 0 }} name={'content'} rules={[{ required: true, message: 'Please input your content.' }]}>
+                            <Input.TextArea placeholder={'Type your chat message here:'} />
+                        </Form.Item>
+                        <div style={{ float: 'right', marginTop: '16px' }}>
+                            <Form.Item style={{ marginBottom: 0 }}>
+                                <Button htmlType={'submit'} type={'primary'} style={{ backgroundColor: '#6F3BF5' }}>
+                                    Send
+                                </Button>
+                            </Form.Item>
                         </div>
-
-
-
-
-
-                      )))}
-                      <Divider />
-                      <div ref={messagesEndRef} />
-                  </div>
-                  <div style={{ marginTop: '8px' }}>
-                      <Form form={form} onFinish={sendMessage}>
-                          <Form.Item style={{ marginBottom: 0 }} name={'content'} rules={[{ required: true, message: 'Please input your content.' }]}>
-                              <Input.TextArea placeholder={'Type your chat message here:'} />
-                          </Form.Item>
-                          <div style={{ float: 'right', marginTop: '16px' }}>
-                              <Form.Item style={{ marginBottom: 0 }}>
-                                  <Button htmlType={'submit'} type={'primary'} style={{ backgroundColor: '#6F3BF5' }}>
-                                      Send
-                                  </Button>
-                              </Form.Item>
-                          </div>
-                      </Form>
-                  </div>
-              </Card>
-          </div>
-      </div>
-    );
-
-
-
-
-
+                    </Form>
+                </div>
+            </Card>
+        </div>
+    </div>
+);
 }
 
 export default Chat
