@@ -108,30 +108,43 @@ const Header = () => {
 
   return (
     <div className={styles.header}>
-      <Row>
-        <Col span={2} offset={2}>
-          <div className={styles.log}>
-            <span className={styles.logo}>Group38</span>
-          </div>
-        </Col>
-        <Col span={14}>
-          <Button
-            onClick={() => handleClick("/")}
-            type={"text"}
-            style={{ color: "#000", fontSize: "16px" }}
-          >
-            Home
-          </Button>
-
-          {/*<Menu className={styles.menu} mode={"horizontal"} items={getMenu()} onClick={handleClick} />*/}
-        </Col>
-        <Col span={4} offset={2}>
-          <Button
-            style={{ marginRight: "16px" }}
-            shape="circle"
-            icon={<SearchOutlined />}
-            onClick={handleSearch}
-          />
+      <Row style={{alignItems: "center"}}>
+      <Col span={3} offset={2}>
+        <div className={styles.log}>
+          <span className={styles.logo}>UZH IFI Q&A</span>
+        </div>
+      </Col>
+      <Col span={6}>
+        <Button
+          onClick={() => handleClick("/")}
+          type={"text"}
+          style={{ color: "blue", fontSize: "20px", fontWeight: "bold" }}
+        >
+          Home
+        </Button>
+      </Col>
+      <Col span={9} style={{maxHeight: "40px", lineHeight: "40px"}}>
+          <span style={{
+              display: "block",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: "512px",
+              marginLeft: "-170px", // Added to move the text to the left
+              fontSize: "16px", // To control text size
+              fontWeight: "bold", // To control text format
+              color: "red" // To control text color
+        }}>
+          This platform is designed for UZH students to share their thoughts!
+        </span>
+      </Col>
+      <Col span={3}>
+        <Button
+          style={{ marginRight: "16px" }}
+          shape="circle"
+          icon={<SearchOutlined />}
+          onClick={handleSearch}
+        />
           {isLogin ? (
             <Dropdown
               menu={{
@@ -143,11 +156,7 @@ const Header = () => {
               }}
               offset={[50, 0]}
             >
-              {/*{hasNew ? (*/}
-              {/*  <Avatar icon={<AlertTwoTone />} />*/}
-              {/*) : (*/}
-              {/*  <Avatar icon={<UserOutlined />} />*/}
-              {/*)}*/}
+            
               <Popover
                 content={
                   <div
