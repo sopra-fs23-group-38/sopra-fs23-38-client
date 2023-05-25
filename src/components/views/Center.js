@@ -389,9 +389,9 @@ const Center = () => {
                                         >
                                             Question Title: {item.questionTitle}
                                         </span>
-                                        <br />
-                                        <span>Your Answer: {item.content}</span>
-                                        <br />
+                                         <Link to={`/question/answer/${item.answerId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                            <span>Your Answer: {item.content}</span>
+                                        </Link>
                                         <span style={{ fontFamily: "Arial, sans-serif" }}>
                                             Last Updated:{" "}
                                             {item.change_time
