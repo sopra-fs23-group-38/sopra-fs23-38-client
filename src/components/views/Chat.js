@@ -69,16 +69,11 @@ const Chat = () => {
 
 
     return (
-    <div className={styles.container}>
-        <div className={styles.main}>
-            <Card title={'Chat With Other Users!'} style={{ width: '50%', maxWidth: '756px' }}>
-                <div id={'container'} style={{ maxHeight: '512px', overflowY: 'scroll' }}>
-                    {messages.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '16px' }}>
-                            No messages yet. Start the conversation!
-                        </div>
-                    ) : (
-                        messages.map((message) => (
+        <div className={styles.container}>
+            <div className={styles.main}>
+                <Card title={'Chat With Other Users!'} style={{ width: '70%', maxWidth: '756px' }}>
+                    <div id={'container'} style={{ maxHeight: '512px', overflowY: 'scroll' }}>
+                        {messages.map((message) => (
                             <div
                                 key={message.id}
                                 style={{
@@ -89,8 +84,8 @@ const Chat = () => {
                             >
                                 <div
                                     style={{
-                                        width: '32px',
-                                        height: '32px',
+                                        width: '50px',
+                                        height: '50px',
                                         borderRadius: '50%',
                                         overflow: 'hidden',
                                         marginRight: message.fromUserId !== user.id ? '8px' : '0',
@@ -104,42 +99,42 @@ const Chat = () => {
                                 </div>
                                 <div
                                     style={{
-                                        padding: '8px',
+                                        padding: '14px',
                                         border: '1px solid #d9d9d9',
                                         borderRadius: '6px',
                                         wordBreak: 'break-word',
                                         maxWidth: '40ch',
+                                        fontSize: '15px',
                                         backgroundColor: message.fromUserId === user.id ? '#6F3BF5' : '#fff',
                                         color: message.fromUserId === user.id ? '#fff' : '#000',
                                     }}
                                     dangerouslySetInnerHTML={{
                                         __html: message.content.replace(/\n/g, '<br />')
                                     }}
-                                />
+                                >
+                                    {/* {message.content} */}
+                                </div>
                             </div>
-                        ))
-                    )}
-                    <Divider />
-                   
-                </div>
-                <div style={{ marginTop: '8px' }}>
-                    <Form form={form} onFinish={sendMessage}>
-                        <Form.Item style={{ marginBottom: 0 }} name={'content'} rules={[{ required: true, message: 'Please input your content.' }]}>
-                            <Input.TextArea placeholder={'Type your chat message here:'} />
-                        </Form.Item>
-                        <div style={{ float: 'right', marginTop: '16px' }}>
-                            <Form.Item style={{ marginBottom: 0 }}>
-                                <Button htmlType={'submit'} type={'primary'} style={{ backgroundColor: '#6F3BF5' }}>
-                                    Send
-                                </Button>
+                        ))}
+                        <Divider />
+                    </div>
+                    <div style={{ marginTop: '8px' }}>
+                        <Form form={form} onFinish={sendMessage}>
+                            <Form.Item style={{ marginBottom: 0 }} name={'content'} rules={[{ required: true, message: 'Please input your content.' }]}>
+                                <Input.TextArea placeholder={'Type your chat message here:'} />
                             </Form.Item>
-                        </div>
-                    </Form>
-                </div>
-            </Card>
+                            <div style={{ float: 'right', marginTop: '16px' }}>
+                                <Form.Item style={{ marginBottom: 0 }}>
+                                    <Button htmlType={'submit'} type={'primary'} style={{ backgroundColor: '#6F3BF5' }}>
+                                        Send
+                                    </Button>
+                                </Form.Item>
+                            </div>
+                        </Form>
+                    </div>
+                </Card>
+            </div>
         </div>
-    </div>
-);
-}
+    );
 
 export default Chat
