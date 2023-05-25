@@ -8,7 +8,7 @@ import {
 import styles from "./header.module.scss";
 import { cleanHasNew } from "helpers/api/user";
 import Cookies from "js-cookie";
-import { useHistory } from "react-router-dom";
+
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
 var stompClient = null;
