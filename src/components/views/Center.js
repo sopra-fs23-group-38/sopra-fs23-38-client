@@ -376,12 +376,13 @@ const Center = () => {
                         ? <span>You don't seem to have asked any answer yet.</span>
                         : <div>
                             {answers.map((item, index) => {
-                            console.log(item);
                                 return <Card
                                     key={index}
                                     style={{ marginTop: "8px", position: "relative" }}
+
                                 >
-                                    <div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between',alignItems: 'center' }}>
+                                    <div style={{ maxWidth: '75%' }}>
                                         <span
                                             style={{
                                                 fontWeight: "bold",
@@ -390,13 +391,14 @@ const Center = () => {
                                         >
                                             Question Title: {item.questionTitle}
                                         </span>
-                                         <Link 
+                                        <br />
+                                        <Link 
                                             to={`/question/answer/${item.answerId}`} 
                                             style={{ textDecoration: 'none', color: 'inherit', wordWrap: 'break-word' }}
                                         >
                                             <span>Your Answer: {item.content}</span>
                                         </Link>
-
+                                        <br />
                                         <span style={{ fontFamily: "Arial, sans-serif" }}>
                                             Last Updated:{" "}
                                             {item.change_time
@@ -421,12 +423,6 @@ const Center = () => {
                                     </div>
 
                                     <div
-                                        style={{
-                                            position: "absolute",
-                                            top: "50%",
-                                            right: "8px",
-                                            transform: "translateY(-50%)",
-                                        }}
                                     >
                                         <Button
                                             onClick={() => {
@@ -459,6 +455,7 @@ const Center = () => {
                                             Delete
                                         </Button>
 
+                                    </div>
                                     </div>
                                 </Card>
                             })}
