@@ -3,13 +3,46 @@ import { Card, Col, Image, Row } from "antd";
 import moment from "moment";
 import Cookies from 'js-cookie';
 //import {translate} from "helpers/api/translator";
+
+const getTagColor = (tag) => {
+    switch (tag) {
+      case 'study':
+        return 'red';  // Replace 'red' with the actual color code you want
+      case 'life':
+        return 'blue';  // Replace 'blue' with the actual color code you want
+      case 'sports':
+        return 'darkgreen';  // Replace 'yellow' with the actual color code you want
+      default:
+        return 'orange';  // Replace 'black' with the actual color code you want
+    }
+  };
+
 const Content = ({ article }) => {
     console.log(article);
 
     return (
         <div className={styles.content}>
-            <Card style={{ width: "756px", padding: 0 }} bodyStyle={{ padding: "16px" }}>
-                <p className={styles.tag}>{article.tag}</p >
+            <Card className={styles.card} style={{ width: "770px", padding: 0 }} bodyStyle={{ padding: "12px" }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center' // This aligns the tag and count vertically in the middle
+                    }}>
+                    <p
+                        className={styles.tag}
+                        style={{
+                            color: getTagColor(article.tag),
+                            fontSize: '17px',
+                            marginRight: '30px' // Add some right margin to separate tag and count
+                        }}>{article.tag}</p>
+                    <p
+                        className={styles.count}
+                        style={{
+                            fontSize: '17px',
+                            fontWeight: 'bold'
+                        }}>🔥: {article.count}</p>
+                </div>
+
                 <Row>
                     <Col span={18} style={{ display: "flex", alignItems: "center" }}>
                         <span
@@ -53,7 +86,6 @@ const Content = ({ article }) => {
                             {moment(article.createTime).format("ll")}
                         </p>
                     </Col>
-                
                 </Row>
             </Card>
         </div>
