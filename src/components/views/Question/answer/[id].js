@@ -170,7 +170,7 @@ const handleBack = () => {
                       </Col>
 
                       <Col span={18}>
-                          <p style={{ marginTop: '0px' }}>{answer.answer.content}</p>
+                          <p style={{ marginTop: '0px',wordWrap: "break-word",marginLeft:'12px',fontWeight: 'bold' }}>{answer.answer.content}</p>
                       </Col>
 
                       <Col>
