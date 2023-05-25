@@ -99,7 +99,7 @@ const AnswerComments = () => {
 
         insertComment({
             ID: id,
-            content: values.content,
+            content: encodeURIComponent(values.content),
             parentId: parentId
         }).then((response) => {
             if (response.success === 'true') {
@@ -124,27 +124,32 @@ const AnswerComments = () => {
                     }
                 })
             } else {
-                message.error('Comment failed')
+                message.error('Your comment length already exceeds 500 characters!')
             }
         });
     };
 
 
-    const huifuButton = (comment) =>
-      (<Button type='primary' onClick={() => {
-          handleReply(comment);
-          formRef.current.scrollIntoView({ behavior: 'smooth' });
-      }}>Reply</Button>)
+    const huifuButton = (comment) => (
+      <Button 
+          type='primary' 
+          size='small'
+          style={{ fontWeight: 'bold',fontSize: '13px' }}
+          onClick={() => {
+              handleReply(comment);
+              formRef.current.scrollIntoView({ behavior: 'smooth' });
+          }}
+      >
+          Reply
+      </Button>
+  );
 
-    const handleBack = () => {
+const handleBack = () => {
         router.goBack();
     };
 
 
-
-
-
-    const defaultKeys = comments.map((_, index) => String(index));
+   const defaultKeys = comments.map((_, index) => String(index));
     return (
       <div className={styles.container}>
 
@@ -186,7 +191,12 @@ const AnswerComments = () => {
                             borderColor: 'transparent',
                         }}>
                             <Collapse defaultActiveKey={defaultKeys} >
-                                <Panel header={item1.author + ":" + item1.content} key={index} >
+                                <Panel key={index} 
+                                  header={
+                                    <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'darkblue' }}>
+                                      {item1.comment_count} Comments inside
+                                    </span>
+                                  } >
                                     <CommentListItem item = {item1} actions={[huifuButton(item1)]}/>
                                     {item1.replies && item1.replies.length > 0 && (
                                       (() => {
@@ -195,7 +205,11 @@ const AnswerComments = () => {
                                           return (
                                             <Collapse>
                                                 {withReplies.map((item2, index2) => ( //layer 2
-                                                  <Panel header={item2.author + " to " + item1.author} key={`main-${index2}`} >
+                                                  <Panel header={
+                                                    <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                      {item2.author} to {item1.author}
+                                                    </span>
+                                                  } key={`main-${index2}`} >
                                                       <CommentListItem item={item2}  actions={[huifuButton(item2)]} />
                                                       {item2.replies && item2.replies.length > 0 && (
                                                         (() => {
@@ -204,7 +218,11 @@ const AnswerComments = () => {
                                                             return (
                                                               <Collapse>
                                                                   {withReplies1.map((item3, index3) => ( //layer 3
-                                                                    <Panel header={item3.author + " to " + item2.author} key={`main-${index3}`} >
+                                                                    <Panel header={
+                                                                      <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                        {item3.author} to {item2.author}
+                                                                      </span>
+                                                                    } key={`main-${index3}`} >
                                                                         <CommentListItem item={item3} actions={[huifuButton(item3)]} />
                                                                         {item3.replies && item3.replies.length > 0 && (
                                                                           (() => {
@@ -213,7 +231,11 @@ const AnswerComments = () => {
                                                                               return (
                                                                                 <Collapse>
                                                                                     {withReplies2.map((item4,index4) => ( //layer 4
-                                                                                      <Panel header={item4.author + " to " + item3.author} key={`main-${index4}`} >
+                                                                                      <Panel header={
+                                                                                        <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                          {item4.author} to {item3.author}
+                                                                                        </span>
+                                                                                      } key={`main-${index4}`} >
                                                                                           <CommentListItem item={item4} actions={[huifuButton(item4)]} />
                                                                                           {item4.replies && item4.replies.length > 0 && (
                                                                                             (() => {
@@ -222,7 +244,11 @@ const AnswerComments = () => {
                                                                                                 return (
                                                                                                   <Collapse>
                                                                                                       {withReplies3.map((item5,index5) => ( //layer 5
-                                                                                                        <Panel header={item5.author + " to " + item4.author} key={`main-${index5}`} >
+                                                                                                        <Panel header={
+                                                                                                          <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                            {item5.author} to {item4.author}
+                                                                                                          </span>
+                                                                                                        } key={`main-${index5}`} >
                                                                                                             <CommentListItem item={item5} actions={[huifuButton(item5)]} />
                                                                                                             {item5.replies && item5.replies.length > 0 && (
                                                                                                               (() => {
@@ -231,7 +257,11 @@ const AnswerComments = () => {
                                                                                                                   return (
                                                                                                                     <Collapse>
                                                                                                                         {withReplies4.map((item6,index6) => ( //layer 6
-                                                                                                                          <Panel header={item6.author + " to " + item5.author} key={`main-${index6}`} >
+                                                                                                                          <Panel header={
+                                                                                                                            <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                              {item6.author} to {item5.author}
+                                                                                                                            </span>
+                                                                                                                          } key={`main-${index6}`} >
                                                                                                                               <CommentListItem item={item6} actions={[huifuButton(item6)]} />
                                                                                                                               {item6.replies && item6.replies.length > 0 && (
                                                                                                                                 (() => {
@@ -240,7 +270,11 @@ const AnswerComments = () => {
                                                                                                                                     return (
                                                                                                                                       <Collapse>
                                                                                                                                           {withReplies5.map((item7,index7) => ( //layer 7
-                                                                                                                                            <Panel header={item7.author + " to " + item6.author} key={`main-${index7}`} >
+                                                                                                                                            <Panel header={
+                                                                                                                                              <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                                                {item7.author} to {item6.author}
+                                                                                                                                              </span>
+                                                                                                                                            } key={`main-${index7}`} >
                                                                                                                                                 <CommentListItem item={item7} actions={[huifuButton(item7)]} />
                                                                                                                                                 {item7.replies && item7.replies.length > 0 && (
                                                                                                                                                   (() => {
@@ -249,7 +283,11 @@ const AnswerComments = () => {
                                                                                                                                                       return (
                                                                                                                                                         <Collapse>
                                                                                                                                                             {withReplies6.map((item8,index8) => ( //layer 8
-                                                                                                                                                              <Panel header={item8.author + " to " + item7.author} key={`main-${index8}`} >
+                                                                                                                                                              <Panel header={
+                                                                                                                                                                <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                                                                  {item8.author} to {item7.author}
+                                                                                                                                                                </span>
+                                                                                                                                                              } key={`main-${index8}`} >
                                                                                                                                                                   <CommentListItem item={item8} actions={[huifuButton(item8)]} />
                                                                                                                                                                   {item8.replies && item8.replies.length > 0 && (
                                                                                                                                                                     (() => {
@@ -258,7 +296,11 @@ const AnswerComments = () => {
                                                                                                                                                                         return (
                                                                                                                                                                           <Collapse>
                                                                                                                                                                               {withReplies7.map((item9,index9) => ( //layer 9
-                                                                                                                                                                                <Panel header={item9.author + " to " + item8.author} key={`main-${index9}`} >
+                                                                                                                                                                                <Panel header={
+                                                                                                                                                                                  <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                                                                                    {item9.author} to {item8.author}
+                                                                                                                                                                                  </span>
+                                                                                                                                                                                } key={`main-${index9}`} >
                                                                                                                                                                                     <CommentListItem item={item9} actions={[huifuButton(item9)]} />
                                                                                                                                                                                     {item9.replies && item9.replies.length > 0 && (
                                                                                                                                                                                       (() => {
@@ -267,7 +309,11 @@ const AnswerComments = () => {
                                                                                                                                                                                           return (
                                                                                                                                                                                             <Collapse>
                                                                                                                                                                                                 {withReplies8.map((item10, index10) => ( //layer 10
-                                                                                                                                                                                                  <Panel header={item10.author + " to " + item9.author} key={`main-${index10}`} >
+                                                                                                                                                                                                  <Panel header={
+                                                                                                                                                                                                    <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                                                                                                      {item10.author} to {item9.author}
+                                                                                                                                                                                                    </span>
+                                                                                                                                                                                                  } key={`main-${index10}`} >
                                                                                                                                                                                                       <CommentListItem item={item10} actions={[huifuButton(item10)]} />
                                                                                                                                                                                                       {item10.replies && item10.replies.length > 0 && (
                                                                                                                                                                                                         (() => {
@@ -276,7 +322,11 @@ const AnswerComments = () => {
                                                                                                                                                                                                             return (
                                                                                                                                                                                                               <Collapse>
                                                                                                                                                                                                                   {withReplies9.map((item11, index11) => ( //layer 11
-                                                                                                                                                                                                                    <Panel header={item11.author + " to " + item10.author} key={`main-${index11}`} >
+                                                                                                                                                                                                                    <Panel header={
+                                                                                                                                                                                                                      <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                                                                                                                        {item11.author} to {item10.author}
+                                                                                                                                                                                                                      </span>
+                                                                                                                                                                                                                    } key={`main-${index11}`} >
                                                                                                                                                                                                                         <CommentListItem item={item11} actions={[huifuButton(item11)]} />
                                                                                                                                                                                                                         {item11.replies && item11.replies.length > 0 && (
                                                                                                                                                                                                                           (() => {
@@ -285,7 +335,11 @@ const AnswerComments = () => {
                                                                                                                                                                                                                               return (
                                                                                                                                                                                                                                 <Collapse>
                                                                                                                                                                                                                                     {withReplies10.map((item12, index12) => ( //layer 12
-                                                                                                                                                                                                                                      <Panel header={item12.author + " to " + item11.author} key={`main-${index12}`} >
+                                                                                                                                                                                                                                      <Panel header={
+                                                                                                                                                                                                                                        <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                                                                                                                                          {item12.author} to {item11.author}
+                                                                                                                                                                                                                                        </span>
+                                                                                                                                                                                                                                      } key={`main-${index12}`} >
                                                                                                                                                                                                                                           <CommentListItem item={item12} actions={[huifuButton(item12)]} />
                                                                                                                                                                                                                                           {item12.replies && item12.replies.length > 0 && (
                                                                                                                                                                                                                                             (() => {
@@ -294,7 +348,11 @@ const AnswerComments = () => {
                                                                                                                                                                                                                                                 return (
                                                                                                                                                                                                                                                   <Collapse>
                                                                                                                                                                                                                                                       {withReplies11.map((item13, index13) => ( //layer 13
-                                                                                                                                                                                                                                                        <Panel header={item13.author + " to " + item12.author} key={`main-${index13}`} >
+                                                                                                                                                                                                                                                        <Panel header={
+                                                                                                                                                                                                                                                          <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                                                                                                                                                            {item13.author} to {item12.author}
+                                                                                                                                                                                                                                                          </span>
+                                                                                                                                                                                                                                                        } key={`main-${index13}`} >
                                                                                                                                                                                                                                                             <CommentListItem item={item13} actions={[huifuButton(item13)]} />
                                                                                                                                                                                                                                                             {item13.replies && item13.replies.length > 0 && (
                                                                                                                                                                                                                                                               (() => {
@@ -303,7 +361,11 @@ const AnswerComments = () => {
                                                                                                                                                                                                                                                                   return (
                                                                                                                                                                                                                                                                     <Collapse>
                                                                                                                                                                                                                                                                         {withReplies12.map((item14, index14) => ( //layer 14
-                                                                                                                                                                                                                                                                          <Panel header={item14.author + " to " + item13.author} key={`main-${index14}`} >
+                                                                                                                                                                                                                                                                          <Panel header={
+                                                                                                                                                                                                                                                                            <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                                                                                                                                                                              {item14.author} to {item13.author}
+                                                                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                                                                          } key={`main-${index14}`} >
                                                                                                                                                                                                                                                                               <CommentListItem item={item14} actions={[huifuButton(item14)]} />
                                                                                                                                                                                                                                                                               {item14.replies && item14.replies.length > 0 && (
                                                                                                                                                                                                                                                                                 (() => {
@@ -312,11 +374,15 @@ const AnswerComments = () => {
                                                                                                                                                                                                                                                                                     return (
                                                                                                                                                                                                                                                                                       <Collapse>
                                                                                                                                                                                                                                                                                           {withReplies13.map((item15, index15) => ( //layer 15
-                                                                                                                                                                                                                                                                                            <Panel header={item15.author + " to " + item14.author} key={`main-${index15}`} >
+                                                                                                                                                                                                                                                                                            <Panel header={
+                                                                                                                                                                                                                                                                                              <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'teal' }}>
+                                                                                                                                                                                                                                                                                                {item15.author} to {item14.author}
+                                                                                                                                                                                                                                                                                              </span>
+                                                                                                                                                                                                                                                                                            } key={`main-${index15}`} >
                                                                                                                                                                                                                                                                                                 <CommentListItem item={item15} actions={[huifuButton(item15)]} />
                                                                                                                                                                                                                                                                                             </Panel>))}
                                                                                                                                                                                                                                                                                           {withoutReplies13.length > 0 && (
-                                                                                                                                                                                                                                                                                            <Panel key={`more-${index14}`} header='more' >
+                                                                                                                                                                                                                                                                                            <Panel key={`more-${index14}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                                                                                                                                                                                                 <List itemLayout="horizontal">
                                                                                                                                                                                                                                                                                                     {withoutReplies13.map((item15) =>
                                                                                                                                                                                                                                                                                                       <CommentListItem item={item15} actions={[huifuButton(item15)]} />)}
@@ -325,7 +391,7 @@ const AnswerComments = () => {
                                                                                                                                                                                                                                                                                       </Collapse>);})())}
                                                                                                                                                                                                                                                                           </Panel>))}
                                                                                                                                                                                                                                                                         {withoutReplies12.length > 0 && (
-                                                                                                                                                                                                                                                                          <Panel key={`more-${index13}`} header='more' >
+                                                                                                                                                                                                                                                                          <Panel key={`more-${index13}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                                                                                                                                                                               <List itemLayout="horizontal">
                                                                                                                                                                                                                                                                                   {withoutReplies12.map((item14) =>
                                                                                                                                                                                                                                                                                     <CommentListItem item={item14} actions={[huifuButton(item14)]} />)}
@@ -334,7 +400,7 @@ const AnswerComments = () => {
                                                                                                                                                                                                                                                                     </Collapse>);})())}
                                                                                                                                                                                                                                                         </Panel>))}
                                                                                                                                                                                                                                                       {withoutReplies11.length > 0 && (
-                                                                                                                                                                                                                                                        <Panel key={`more-${index12}`} header='more' >
+                                                                                                                                                                                                                                                        <Panel key={`more-${index12}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                                                                                                                                                             <List itemLayout="horizontal">
                                                                                                                                                                                                                                                                 {withoutReplies11.map((item13) =>
                                                                                                                                                                                                                                                                   <CommentListItem item={item13} actions={[huifuButton(item13)]} />)}
@@ -343,7 +409,7 @@ const AnswerComments = () => {
                                                                                                                                                                                                                                                   </Collapse>);})())}
                                                                                                                                                                                                                                       </Panel>))}
                                                                                                                                                                                                                                     {withoutReplies10.length > 0 && (
-                                                                                                                                                                                                                                      <Panel key={`more-${index11}`} header='more' >
+                                                                                                                                                                                                                                      <Panel key={`more-${index11}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                                                                                                                                           <List itemLayout="horizontal">
                                                                                                                                                                                                                                               {withoutReplies10.map((item12) =>
                                                                                                                                                                                                                                                 <CommentListItem item={item12} actions={[huifuButton(item12)]} />)}
@@ -352,7 +418,7 @@ const AnswerComments = () => {
                                                                                                                                                                                                                                 </Collapse>);})())}
                                                                                                                                                                                                                     </Panel>))}
                                                                                                                                                                                                                   {withoutReplies9.length > 0 && (
-                                                                                                                                                                                                                    <Panel key={`more-${index10}`} header='more' >
+                                                                                                                                                                                                                    <Panel key={`more-${index10}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                                                                                                                         <List itemLayout="horizontal">
                                                                                                                                                                                                                             {withoutReplies9.map((item11) =>
                                                                                                                                                                                                                               <CommentListItem item={item11} actions={[huifuButton(item11)]} />)}
@@ -361,7 +427,7 @@ const AnswerComments = () => {
                                                                                                                                                                                                               </Collapse>);})())}
                                                                                                                                                                                                   </Panel>))}
                                                                                                                                                                                                 {withoutReplies8.length > 0 && (
-                                                                                                                                                                                                  <Panel key={`more-${index9}`} header='more' >
+                                                                                                                                                                                                  <Panel key={`more-${index9}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                                                                                                       <List itemLayout="horizontal">
                                                                                                                                                                                                           {withoutReplies8.map((item10) =>
                                                                                                                                                                                                             <CommentListItem item={item10} actions={[huifuButton(item10)]} />)}
@@ -370,7 +436,7 @@ const AnswerComments = () => {
                                                                                                                                                                                             </Collapse>);})())}
                                                                                                                                                                                 </Panel>))}
                                                                                                                                                                               {withoutReplies7.length > 0 && (
-                                                                                                                                                                                <Panel key={`more-${index8}`} header='more' >
+                                                                                                                                                                                <Panel key={`more-${index8}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                                                                                     <List itemLayout="horizontal">
                                                                                                                                                                                         {withoutReplies7.map((item9) =>
                                                                                                                                                                                           <CommentListItem item={item9} actions={[huifuButton(item9)]} />)}
@@ -379,7 +445,7 @@ const AnswerComments = () => {
                                                                                                                                                                           </Collapse>);})())}
                                                                                                                                                               </Panel>))}
                                                                                                                                                             {withoutReplies6.length > 0 && (
-                                                                                                                                                              <Panel key={`more-${index7}`} header='more' >
+                                                                                                                                                              <Panel key={`more-${index7}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                                                                   <List itemLayout="horizontal">
                                                                                                                                                                       {withoutReplies6.map((item8) =>
                                                                                                                                                                         <CommentListItem item={item8} actions={[huifuButton(item8)]} />)}
@@ -388,7 +454,7 @@ const AnswerComments = () => {
                                                                                                                                                         </Collapse>);})())}
                                                                                                                                             </Panel>))}
                                                                                                                                           {withoutReplies5.length > 0 && (
-                                                                                                                                            <Panel key={`more-${index6}`} header='more' >
+                                                                                                                                            <Panel key={`more-${index6}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                                                 <List itemLayout="horizontal">
                                                                                                                                                     {withoutReplies5.map((item7) =>
                                                                                                                                                       <CommentListItem item={item7} actions={[huifuButton(item7)]} />)}
@@ -397,7 +463,7 @@ const AnswerComments = () => {
                                                                                                                                       </Collapse>);})())}
                                                                                                                           </Panel>))}
                                                                                                                         {withoutReplies4.length > 0 && (
-                                                                                                                          <Panel key={`more-${index5}`} header='more' >
+                                                                                                                          <Panel key={`more-${index5}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                                               <List itemLayout="horizontal">
                                                                                                                                   {withoutReplies4.map((item6) =>
                                                                                                                                     <CommentListItem item={item6} actions={[huifuButton(item6)]} />)}
@@ -406,7 +472,7 @@ const AnswerComments = () => {
                                                                                                                     </Collapse>);})())}
                                                                                                         </Panel>))}
                                                                                                       {withoutReplies3.length > 0 && (
-                                                                                                        <Panel key={`more-${index4}`} header='more' >
+                                                                                                        <Panel key={`more-${index4}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                                             <List itemLayout="horizontal">
                                                                                                                 {withoutReplies3.map((item5) =>
                                                                                                                   <CommentListItem item={item5} actions={[huifuButton(item5)]} />)}
@@ -415,7 +481,7 @@ const AnswerComments = () => {
                                                                                                   </Collapse>);})())}
                                                                                       </Panel>))}
                                                                                     {withoutReplies2.length > 0 && (
-                                                                                      <Panel key={`more-${index3}`} header='more' >
+                                                                                      <Panel key={`more-${index3}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                                           <List itemLayout="horizontal">
                                                                                               {withoutReplies2.map((item4) =>
                                                                                                 <CommentListItem item={item4} actions={[huifuButton(item4)]} />)}
@@ -424,7 +490,7 @@ const AnswerComments = () => {
                                                                                 </Collapse>);})())}
                                                                     </Panel>))}
                                                                   {withoutReplies1.length > 0 && (
-                                                                    <Panel key={`more-${index2}`} header='more' >
+                                                                    <Panel key={`more-${index2}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                                         <List itemLayout="horizontal">
                                                                             {withoutReplies1.map((item3) =>
                                                                               <CommentListItem item={item3} actions={[huifuButton(item3)]} />)}
@@ -433,7 +499,7 @@ const AnswerComments = () => {
                                                               </Collapse>); })())}
                                                   </Panel>))}
                                                 {withoutReplies.length > 0 && (
-                                                  <Panel key={`more-${index}`} header='more' >
+                                                  <Panel key={`more-${index}`} header={<span style={{ fontSize: '16px', fontWeight: 'bold', color: '#6F3BF5' }}>More replies</span>} >
                                                       <List itemLayout="horizontal">
                                                           {withoutReplies.map((item2) =>
                                                             <CommentListItem item={item2} actions={[huifuButton(item2)]} />)}
