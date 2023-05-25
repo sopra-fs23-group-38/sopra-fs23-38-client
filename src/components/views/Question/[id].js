@@ -331,6 +331,7 @@ const toggleTrans3 = async (answerId) => {
                       router.push(`/center/${`U${article.userId * 3}`}`)
                     }
                     className={styles.username}
+                    style = {{fontWeight: 'bold'}}
                   >
                     <p
                       className={styles.name}
@@ -418,7 +419,7 @@ const toggleTrans3 = async (answerId) => {
                         <div>
                           <p
                             className={styles.name}
-                            style={{ fontSize: "16px", marginTop: "4px" }}
+                            style={{ fontSize: "16px", marginTop: "4px",fontWeight: 'bold' }}
                           >
                             {answer.who_answers_name}
                           </p>
@@ -434,7 +435,7 @@ const toggleTrans3 = async (answerId) => {
                         >
                           <p
                             className={styles.name}
-                            style={{ fontSize: "14px", marginTop: "4px" }}
+                            style={{ fontSize: "14px", marginTop: "4px",fontWeight: 'bold' }}
                           >
                             {answer.who_answers_name}
                           </p>
