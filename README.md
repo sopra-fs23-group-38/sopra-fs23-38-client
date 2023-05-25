@@ -6,8 +6,8 @@
 
 <div align="center">
 
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-38_sopra-fs23-38-server&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=sopra-fs23-group-38_sopra-fs23-38-server)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-38_sopra-fs23-38-server&metric=coverage)](https://sonarcloud.io/summary/new_code?id=sopra-fs23-group-38_sopra-fs23-38-server)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-38_sopra-fs23-38-client&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=sopra-fs23-group-38_sopra-fs23-38-client)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-38_sopra-fs23-38-client&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=sopra-fs23-group-38_sopra-fs23-38-client)
 
 </div>
 
