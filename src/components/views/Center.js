@@ -376,6 +376,7 @@ const Center = () => {
                         ? <span>You don't seem to have asked any answer yet.</span>
                         : <div>
                             {answers.map((item, index) => {
+                            console.log(item);
                                 return <Card
                                     key={index}
                                     style={{ marginTop: "8px", position: "relative" }}
@@ -389,9 +390,13 @@ const Center = () => {
                                         >
                                             Question Title: {item.questionTitle}
                                         </span>
-                                         <Link to={`/question/answer/${item.answerId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                         <Link 
+                                            to={`/question/answer/${item.answerId}`} 
+                                            style={{ textDecoration: 'none', color: 'inherit', wordWrap: 'break-word' }}
+                                        >
                                             <span>Your Answer: {item.content}</span>
                                         </Link>
+
                                         <span style={{ fontFamily: "Arial, sans-serif" }}>
                                             Last Updated:{" "}
                                             {item.change_time
