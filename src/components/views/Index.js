@@ -536,7 +536,8 @@ const Index = () => {
                         email: "",
                         tag: item.question.tag,
                         nameid: item.who_asksId,
-                        avatar:item.who_asks_avatar
+                        avatar:item.who_asks_avatar,
+                        count:item.question.answer_count
                       }}
                       
                     />
