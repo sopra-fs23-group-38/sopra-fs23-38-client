@@ -99,37 +99,53 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 The Home page should be the first page the user sees before logging in. It should contain a list of all the questions that users created. Also, when someone creates a new issue, the user can see the update of the issue in real time on this page. Users can also sort questions by tag option to select topics of interest to them. By default, questions are sorted according to the order in which they are created, but users can also sort questions according to the number of responses to follow those that are more popular. <br /> <br />
 
+![Home Page](img/home.png)
+
 ### Register Page
 
 The register page should be the first page the user sees after clicking on the register button. It should contain a form where the user can enter his username, password(double check), email(Format validation), birthday(optional) and set their own avatar. <br /> <br />
+
+![Register Page](img/register.png)
 
 ### Login Page
 
 The login page should be the first page the user sees after clicking on the login button. It contains a form where the user can enter his username and password to login correctly. <br /> <br />
 
+![Login Page](img/login.png)
+
 ### Search Page
 
 Users can use the search page to search for everything they want by keyword, or they can use the different options to search for User, Question, Answer or Comment. The search results can be clicked on and redirected. <br /> <br />
+
+![Search Page](img/search.png)
 
 ### Create Question Page
 
 When the user creates a question, the user can enter the title of the question, the description and the tag used to classify the question. <br /> <br />
 
+![Create Question Page](img/create.png)
+
 ### Answer Question Page
 
 This screen allows users to answer questions, upvote/downvote answers, and optionally sort Answers by the number of votes, as well as accessing each Answer's Comment page through this page. <br /> <br />
+
+![Answer Question Page](img/answer.png)
 
 ### Comment Page
 
 In the Comment Page, users can add comments to different Answers or Comments, and the Comments are displayed in a very clear nested format so that people can clearly see which user is commenting on which question.
 
+![Comment Page](img/comment.png)
 ### User Center Page
 
 In the User Center Page, users can edit the questions they have asked, the answers they have created and the comments they have made, as well as view the Notifications they have received and jump to the corresponding page via Notification. You can also view other people's User centres and chat with them. <br /> <br />
 
+![User Center Page](img/user.png)
 ### Chat Page
 
 The chat page should be the first page the user sees after clicking on the chat button. It should contain a box about messages with other users. <br /> <br />
+
+![Chat Page](img/chat.png)
 
 ## Roadmap
 
